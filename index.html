@@ -3,20 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIS 雙軌決策支援系統 (tPA + EVT)</title>
+    <title>AIS 雙軌決策與風險評估系統</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 10px 20px; }
         .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; font-size: 1.5em; }
         h2 { color: #2980b9; margin-top: 25px; border-left: 4px solid #3498db; padding-left: 10px; font-size: 1.2em; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input[type="datetime-local"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        input[type="datetime-local"], input[type="number"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1em; }
         .checkbox-group label { font-weight: normal; display: flex; align-items: center; cursor: pointer; padding: 8px; background: #f9f9f9; border-radius: 5px; margin-bottom: 5px; transition: 0.2s; }
         .checkbox-group label:hover { background: #eef2f5; }
         .checkbox-group input { margin-right: 10px; width: 18px; height: 18px; }
-        .btn { display: block; width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn { display: block; width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 20px; }
         .btn:hover { background: #2980b9; }
+        
+        /* 展開式計算機樣式 */
+        details { background: #e8f4f8; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; }
+        summary { font-weight: bold; color: #2c3e50; cursor: pointer; font-size: 1.1em; outline: none; display: flex; justify-content: space-between; align-items: center; }
+        summary::-webkit-details-marker { display: none; }
+        .calc-content { margin-top: 15px; background: #fff; padding: 15px; border-radius: 5px; border: 1px solid #d1e3ea; }
+        .score-display { background: #2980b9; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.9em; }
+        
+        /* 決策輸出樣式 */
         #result-box { margin-top: 30px; padding: 20px; border-radius: 8px; display: none; }
         .scenario-a { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .scenario-b { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
@@ -28,7 +37,7 @@
 <body>
 
 <div class="container">
-    <h1>急性缺血性腦中風 (AIS) 決策系統</h1>
+    <h1>急性缺血性腦中風 (AIS) 決策支援</h1>
 
     <!-- 階段一：時間評估 -->
     <h2>1. 黃金時窗評估</h2>
@@ -42,18 +51,83 @@
     </div>
 
     <!-- 階段二：臨床與影像篩檢 -->
-    <h2>2. 臨床與影像篩檢</h2>
+    <h2>2. 臨床與影像資訊</h2>
     <div class="form-group">
-        <label>NIHSS 神經學評分 (0-42):</label>
-        <input type="number" id="nihss" min="0" max="42" value="10">
-    </div>
-    <div class="form-group">
-        <label>病患體重 (kg) - 用於計算劑量:</label>
+        <label>病患體重 (kg) - 計算 tPA 劑量用:</label>
         <input type="number" id="weight" min="30" max="150" value="60">
     </div>
+
+    <!-- NIHSS 計算機 -->
+    <details>
+        <summary>NIHSS 神經學評分 <span class="score-display">總分: <span id="nihss-total">0</span> 分</span></summary>
+        <div class="calc-content">
+            <div class="form-group">
+                <label>1a. 意識程度</label>
+                <select class="nihss-item" onchange="calcNIHSS()">
+                    <option value="0">0 - 清醒，反應敏銳</option>
+                    <option value="1">1 - 嗜睡，輕微刺激可喚醒</option>
+                    <option value="2">2 - 遲鈍，需強烈刺激</option>
+                    <option value="3">3 - 昏迷，僅有反射</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>1b. 意識狀態提問 (月份與年齡)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 兩題皆對</option><option value="1">1 - 答對一題</option><option value="2">2 - 皆錯或無法回答</option></select>
+            </div>
+            <div class="form-group">
+                <label>1c. 意識狀態指令 (閉眼與握拳)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 兩項皆正確</option><option value="1">1 - 正確一項</option><option value="2">2 - 皆錯</option></select>
+            </div>
+            <div class="form-group">
+                <label>2. 凝視 (Gaze)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 部份凝視麻痺</option><option value="2">2 - 完全凝視麻痺</option></select>
+            </div>
+            <div class="form-group">
+                <label>3. 視野 (Visual)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無視野缺損</option><option value="1">1 - 部份偏盲</option><option value="2">2 - 完全偏盲</option><option value="3">3 - 雙側偏盲或失明</option></select>
+            </div>
+            <div class="form-group">
+                <label>4. 顏面神經麻痺 (Facial Palsy)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 輕微(鼻唇溝變平)</option><option value="2">2 - 部份麻痺(下半部癱瘓)</option><option value="3">3 - 完全麻痺(單或雙側)</option></select>
+            </div>
+            <div class="form-group">
+                <label>5. 上肢運動 (Motor Arm) - 左/右分開計分，此處取最嚴重側</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無下垂 (維持10秒)</option><option value="1">1 - 漂移下垂但不觸床</option><option value="2">2 - 抗重力，但無法維持10秒</option><option value="3">3 - 無法抗重力(僅能平移)</option><option value="4">4 - 無動作</option></select>
+            </div>
+            <div class="form-group">
+                <label>6. 下肢運動 (Motor Leg) - 左/右分開計分，此處取最嚴重側</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無下垂 (維持5秒)</option><option value="1">1 - 漂移下垂但不觸床</option><option value="2">2 - 抗重力，但無法維持5秒</option><option value="3">3 - 無法抗重力(僅能平移)</option><option value="4">4 - 無動作</option></select>
+            </div>
+            <div class="form-group">
+                <label>7. 肢體協調 (Limb Ataxia)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無</option><option value="1">1 - 一側肢體有</option><option value="2">2 - 兩側肢體皆有</option></select>
+            </div>
+            <div class="form-group">
+                <label>8. 感覺 (Sensory)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 輕至中度感覺缺失</option><option value="2">2 - 嚴重或完全感覺缺失</option></select>
+            </div>
+            <div class="form-group">
+                <label>9. 語言 (Best Language)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 輕至中度失語</option><option value="2">2 - 嚴重失語</option><option value="3">3 - 全面失語/無語</option></select>
+            </div>
+            <div class="form-group">
+                <label>10. 構音 (Dysarthria)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 輕至中度</option><option value="2">2 - 嚴重/無法言語</option></select>
+            </div>
+            <div class="form-group">
+                <label>11. 忽略症 (Extinction/Inattention)</label>
+                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無</option><option value="1">1 - 忽略一種模態(視/觸/聽)</option><option value="2">2 - 嚴重半側忽略</option></select>
+            </div>
+        </div>
+    </details>
+
+    <div class="form-group">
+        <label>CT ASPECTS 分數 (0-10, 由放射科或 AI 提供):</label>
+        <input type="number" id="aspects" min="0" max="10" value="10">
+    </div>
+    
     <div class="checkbox-group">
         <label><input type="checkbox" id="hasLvo"> CTA/MRA 證實有大血管阻塞 (ICA 或 MCA M1/M2)</label>
-        <label><input type="checkbox" id="aspectsLow"> CT ASPECTS 分數 < 6 分 (大範圍梗塞)</label>
     </div>
 
     <!-- 階段三：禁忌症檢核 -->
@@ -66,9 +140,40 @@
         <label><input type="checkbox" class="evt-contra"> [EVT] 發病前 mRS 失能分數 ≥ 3 分或預期壽命極短</label>
     </div>
 
+    <!-- 階段四：次級預防風險評估 -->
+    <h2>4. 慢性風險評估 (選填)</h2>
+    <details>
+        <summary>CHA2DS2-VASc 中風風險 <span class="score-display">總分: <span id="cha-total">0</span> 分</span></summary>
+        <div class="calc-content checkbox-group">
+            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 鬱血性心衰竭 (C, 1分)</label>
+            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 高血壓 (H, 1分)</label>
+            <label><input type="checkbox" class="cha-item" value="2" onchange="calcRisk()"> 年齡 ≥ 75 歲 (A2, 2分)</label>
+            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 糖尿病 (D, 1分)</label>
+            <label><input type="checkbox" class="cha-item" value="2" onchange="calcRisk()"> 曾中風或 TIA (S2, 2分)</label>
+            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 血管疾病 (V, 1分)</label>
+            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 年齡 65-74 歲 (A, 1分)</label>
+            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 女性 (Sc, 1分)</label>
+        </div>
+    </details>
+
+    <details>
+        <summary>HAS-BLED 出血風險 <span class="score-display">總分: <span id="has-total">0</span> 分</span></summary>
+        <div class="calc-content checkbox-group">
+            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 高血壓收縮壓 >160 (H, 1分)</label>
+            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 肝腎功能異常 (A, 各1分最多2分)</label>
+            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 肝腎功能異常之第二項</label>
+            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 曾中風史 (S, 1分)</label>
+            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 曾出血病史或體質 (B, 1分)</label>
+            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> INR 浮動不穩 (L, 1分)</label>
+            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 年齡 > 65 歲 (E, 1分)</label>
+            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 使用藥物(NSAID/抗血小板)或酗酒 (D, 各1分最多2分)</label>
+            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 藥物/酗酒之第二項</label>
+        </div>
+    </details>
+
     <button class="btn" onclick="calculateDecision()">產出處置決策</button>
 
-    <!-- 階段四：決策輸出 -->
+    <!-- 決策輸出 -->
     <div id="result-box">
         <h3 id="result-title"></h3>
         <p id="result-desc"></p>
@@ -77,7 +182,6 @@
 </div>
 
 <script>
-    // 設定預設時間為現在與三小時前，方便測試
     window.onload = function() {
         let now = new Date();
         let lkw = new Date(now.getTime() - 3 * 60 * 60 * 1000);
@@ -87,23 +191,43 @@
         document.getElementById('timeLkw').value = lkw.toISOString().slice(0,16);
     };
 
+    // 即時計算 NIHSS
+    function calcNIHSS() {
+        let total = 0;
+        document.querySelectorAll('.nihss-item').forEach(select => {
+            total += parseInt(select.value);
+        });
+        document.getElementById('nihss-total').innerText = total;
+    }
+
+    // 即時計算 CHA2DS2-VASc 與 HAS-BLED
+    function calcRisk() {
+        let chaTotal = 0;
+        document.querySelectorAll('.cha-item:checked').forEach(cb => { chaTotal += parseInt(cb.value); });
+        document.getElementById('cha-total').innerText = chaTotal;
+
+        let hasTotal = 0;
+        document.querySelectorAll('.has-item:checked').forEach(cb => { hasTotal += parseInt(cb.value); });
+        document.getElementById('has-total').innerText = hasTotal;
+    }
+
+    // 產出最終決策
     function calculateDecision() {
         const t1 = new Date(document.getElementById('timeLkw').value);
         const t2 = new Date(document.getElementById('timeNow').value);
         const diffHours = (t2 - t1) / (1000 * 60 * 60);
         
         const hasLvo = document.getElementById('hasLvo').checked;
-        const aspectsLow = document.getElementById('aspectsLow').checked;
-        const weight = Math.min(parseFloat(document.getElementById('weight').value) || 60, 100); // 體重上限100kg
+        const aspectsScore = parseInt(document.getElementById('aspects').value);
+        const aspectsLow = aspectsScore < 6; // 自動判斷分數小於6為低分
+        const weight = Math.min(parseFloat(document.getElementById('weight').value) || 60, 100);
 
-        // 檢查禁忌症
         let tpaContra = false;
         document.querySelectorAll('.tpa-contra').forEach(cb => { if(cb.checked) tpaContra = true; });
         
         let evtContra = false;
         document.querySelectorAll('.evt-contra').forEach(cb => { if(cb.checked) evtContra = true; });
 
-        // 判定資格
         let eligibleTpa = (diffHours <= 4.5) && !tpaContra;
         let eligibleEvt = (diffHours <= 24) && hasLvo && !aspectsLow && !evtContra;
 
@@ -116,46 +240,41 @@
         doseBox.style.display = 'none';
         resultBox.className = '';
 
-        // 劑量計算邏輯
         const totalDose = (weight * 0.9).toFixed(1);
         const bolus = (totalDose * 0.1).toFixed(1);
         const infusion = (totalDose * 0.9).toFixed(1);
-        const waste = (50 - totalDose > 0) ? (50 - totalDose).toFixed(1) : (100 - totalDose).toFixed(1); // 假設使用50mg藥瓶
+        const waste = (50 - totalDose > 0) ? (50 - totalDose).toFixed(1) : (100 - totalDose).toFixed(1);
 
         const doseHtml = `
             <strong>💊 tPA 劑量精算 (0.9 mg/kg, Max 90mg)：</strong><br>
             • 總劑量：<b>${totalDose} mg</b><br>
-            • 靜脈推注 (Bolus, 1分鐘)：<b>${bolus} mg</b><br>
-            • 靜脈點滴 (Infusion, 1小時)：<b>${infusion} mg</b><br>
-            <span style="color:#d35400;">⚠️ 防呆提醒：請先從藥瓶中抽除並丟棄 <b>${waste} mg</b>，避免過量施打。</span>
+            • 靜脈推注 (1分鐘)：<b>${bolus} mg</b><br>
+            • 靜脈點滴 (1小時)：<b>${infusion} mg</b><br>
+            <span style="color:#d35400;">⚠️ 請先從藥瓶中抽除並丟棄 <b>${waste} mg</b>，避免過量施打。</span>
         `;
 
-        // 決策矩陣分流
         if (eligibleTpa && eligibleEvt) {
             resultBox.classList.add('scenario-a');
             resultTitle.innerHTML = "情境 A：Bridging Therapy (雙軌啟動)";
-            resultDesc.innerHTML = `時間窗為 ${diffHours.toFixed(1)} 小時。<b>處置：立即施打 IV tPA，並同步呼叫神經介入小組進行 EVT。</b>請勿等待 tPA 滴注完畢才送導管室！`;
+            resultDesc.innerHTML = `時間窗為 ${diffHours.toFixed(1)} 小時，ASPECTS ${aspectsScore}分。<b>處置：立即施打 IV tPA，並同步呼叫介入小組進行 EVT。</b>`;
             doseBox.innerHTML = doseHtml;
             doseBox.style.display = 'block';
-        } 
-        else if (eligibleTpa && !eligibleEvt) {
+        } else if (eligibleTpa && !eligibleEvt) {
             resultBox.classList.add('scenario-b');
             resultTitle.innerHTML = "情境 B：IV tPA Only";
-            let evtReason = (!hasLvo) ? "無大血管阻塞" : (aspectsLow ? "ASPECTS分數過低" : (evtContra ? "有EVT禁忌症" : "超過24小時"));
-            resultDesc.innerHTML = `時間窗為 ${diffHours.toFixed(1)} 小時。因 ${evtReason}，不適用或不需動脈取栓。<b>處置：給予標準 IV tPA 治療。</b>`;
+            let evtReason = (!hasLvo) ? "無大血管阻塞" : (aspectsLow ? `ASPECTS僅${aspectsScore}分` : "有EVT禁忌");
+            resultDesc.innerHTML = `時間窗為 ${diffHours.toFixed(1)} 小時。因 ${evtReason} 不安排動脈取栓。<b>處置：給予標準 IV tPA 治療。</b>`;
             doseBox.innerHTML = doseHtml;
             doseBox.style.display = 'block';
-        } 
-        else if (!eligibleTpa && eligibleEvt) {
+        } else if (!eligibleTpa && eligibleEvt) {
             resultBox.classList.add('scenario-c');
             resultTitle.innerHTML = "情境 C：EVT Only (直接動脈取栓)";
-            let tpaReason = (diffHours > 4.5) ? "超過4.5小時時窗" : "有tPA絕對禁忌症";
-            resultDesc.innerHTML = `因 ${tpaReason}，不適用靜脈血栓溶解劑。<b>處置：直接安排 EVT 動脈取栓。請準備同意書並確認患者腎功能與備血狀態。</b>`;
-        } 
-        else {
+            let tpaReason = (diffHours > 4.5) ? "超時" : "有tPA禁忌症";
+            resultDesc.innerHTML = `因 ${tpaReason} 不打 tPA。ASPECTS ${aspectsScore}分。<b>處置：直接安排 EVT 動脈取栓。</b>`;
+        } else {
             resultBox.classList.add('scenario-d');
             resultTitle.innerHTML = "情境 D：皆不符合急症再灌注標準";
-            resultDesc.innerHTML = `時間窗為 ${diffHours.toFixed(1)} 小時。患者有禁忌症、無血管阻塞或已大範圍梗塞。<b>處置：進入次級預防，給予抗血小板藥物（如 DAPT）、Statin 控制，並安排病房觀察。</b>`;
+            resultDesc.innerHTML = `無急症處置空間。<b>後續處置：</b>進入次級預防，請參考上方 CHA2DS2-VASc 與 HAS-BLED 評分，評估抗凝血劑 (OAC) 或抗血小板藥物給予時機。`;
         }
     }
 </script>
