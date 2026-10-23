@@ -1,283 +1,866 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIS 雙軌決策與風險評估系統</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 10px 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; font-size: 1.5em; }
-        h2 { color: #2980b9; margin-top: 25px; border-left: 4px solid #3498db; padding-left: 10px; font-size: 1.2em; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input[type="datetime-local"], input[type="number"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1em; }
-        .checkbox-group label { font-weight: normal; display: flex; align-items: center; cursor: pointer; padding: 8px; background: #f9f9f9; border-radius: 5px; margin-bottom: 5px; transition: 0.2s; }
-        .checkbox-group label:hover { background: #eef2f5; }
-        .checkbox-group input { margin-right: 10px; width: 18px; height: 18px; }
-        .btn { display: block; width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 20px; }
-        .btn:hover { background: #2980b9; }
-        
-        /* 展開式計算機樣式 */
-        details { background: #e8f4f8; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; }
-        summary { font-weight: bold; color: #2c3e50; cursor: pointer; font-size: 1.1em; outline: none; display: flex; justify-content: space-between; align-items: center; }
-        summary::-webkit-details-marker { display: none; }
-        .calc-content { margin-top: 15px; background: #fff; padding: 15px; border-radius: 5px; border: 1px solid #d1e3ea; }
-        .score-display { background: #2980b9; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.9em; }
-        
-        /* 決策輸出樣式 */
-        #result-box { margin-top: 30px; padding: 20px; border-radius: 8px; display: none; }
-        .scenario-a { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .scenario-b { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
-        .scenario-c { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .scenario-d { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .dose-calculator { margin-top: 15px; background: rgba(255,255,255,0.8); padding: 15px; border-radius: 5px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIS 雙軌決策與風險評估系統</title>
+<style>
+:root{--blue:#3498db;--blue-d:#2980b9;--ink:#2c3e50;--bg:#f4f7f6;--line:#d6e2ea;--soft:#e8f4f8;
+  --ok-bg:#d4edda;--ok:#155724;--info-bg:#cce5ff;--info:#004085;--warn-bg:#fff3cd;--warn:#856404;--bad-bg:#f8d7da;--bad:#721c24;--gray-bg:#eceff1;--gray:#455a64}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:#333;line-height:1.6;margin:0;padding:10px 16px 90px}
+.container{max-width:1120px;margin:0 auto;background:#fff;padding:22px 24px;border-radius:10px;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+h1{text-align:center;color:var(--ink);border-bottom:2px solid var(--blue);padding-bottom:10px;font-size:1.5em;margin:0 0 4px}
+.sub{text-align:center;color:#6b7c8a;font-size:.86em;margin:0 0 14px}
+.toolbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.tbtn{border:1px solid var(--blue);background:#fff;color:var(--blue-d);border-radius:5px;padding:6px 12px;font-size:.9em;cursor:pointer;font-weight:600}
+.tbtn:hover{background:var(--soft)}
+.tbtn.primary{background:var(--blue);color:#fff}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start}
+h2{color:var(--blue-d);margin:26px 0 10px;border-left:4px solid var(--blue);padding-left:10px;font-size:1.15em}
+h2:first-child{margin-top:6px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 12px}
+.form-group{margin-bottom:12px}
+label.f{display:block;font-weight:bold;margin-bottom:4px;font-size:.93em}
+.hint{font-weight:normal;color:#6b7c8a;font-size:.85em}
+input[type=datetime-local],input[type=number],select{width:100%;padding:9px;border:1px solid #ccc;border-radius:5px;font-size:1em;background:#fff}
+input:invalid,input.bad{border-color:#e74c3c;background:#fff5f5}
+.inline{display:flex;gap:6px}
+.inline input{flex:1}
+.row.tw{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.row>*,.inline input,input,select{min-width:0}
+.inline button{white-space:nowrap}
+.checkbox-group label{font-weight:normal;display:flex;align-items:flex-start;gap:8px;cursor:pointer;padding:7px 9px;background:#f9f9f9;border-radius:5px;margin-bottom:5px;transition:.2s;font-size:.93em}
+.checkbox-group label:hover{background:#eef2f5}
+.checkbox-group input{margin-top:3px;width:17px;height:17px;flex:none}
+.grp-title{font-weight:bold;font-size:.9em;margin:10px 0 5px;color:var(--ink)}
+.tag{display:inline-block;font-size:.75em;padding:0 6px;border-radius:9px;margin-left:4px;vertical-align:1px;font-weight:600}
+.t-abs{background:var(--bad-bg);color:var(--bad)}.t-rel{background:var(--warn-bg);color:var(--warn)}.t-nhi{background:#e3e7fb;color:#2c3e8f}
+details{background:var(--soft);padding:9px 14px;border-radius:8px;margin-bottom:12px}
+summary{font-weight:bold;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"▾";color:var(--blue-d)}
+details[open] summary::after{content:"▴"}
+.calc-content{margin-top:12px;background:#fff;padding:14px;border-radius:5px;border:1px solid #d1e3ea}
+.score-display{background:var(--blue-d);color:#fff;padding:2px 9px;border-radius:12px;font-size:.88em;margin-left:auto;white-space:nowrap}
+.nihss-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 12px}
+.nihss-grid .form-group{margin-bottom:8px}
+.nihss-grid label.f{font-size:.86em}
+.nihss-grid select{padding:6px;font-size:.9em}
+.note{font-size:.85em;color:#5d6d7a;background:#f6f9fb;border-left:3px solid #b8cfdd;padding:6px 10px;border-radius:4px;margin:6px 0 10px}
+.hidden{display:none!important}
+/* 結果欄 */
+.result-col{position:sticky;top:10px}
+.panel{border-radius:8px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--line);background:#fff}
+.panel h3{margin:0 0 6px;font-size:1.05em}
+.scenario-a{background:var(--ok-bg);color:var(--ok);border-color:#c3e6cb}
+.scenario-b{background:var(--info-bg);color:var(--info);border-color:#b8daff}
+.scenario-c{background:var(--warn-bg);color:var(--warn);border-color:#ffeeba}
+.scenario-d{background:var(--bad-bg);color:var(--bad);border-color:#f5c6cb}
+.scenario-p{background:var(--gray-bg);color:var(--gray);border-color:#cfd8dc}
+.timer{font-size:.9em;margin-top:2px}
+.track{border-left:5px solid #ccc}
+.track.s-yes{border-left-color:#28a745}.track.s-consider{border-left-color:#f0ad4e}.track.s-no{border-left-color:#dc3545}.track.s-pending{border-left-color:#90a4ae}
+.track .head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.badge{font-size:.78em;font-weight:700;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.b-yes{background:var(--ok-bg);color:var(--ok)}.b-consider{background:var(--warn-bg);color:var(--warn)}.b-no{background:var(--bad-bg);color:var(--bad)}.b-pending{background:var(--gray-bg);color:var(--gray)}
+.cor{font-size:.78em;color:#555;border:1px solid #ccc;border-radius:4px;padding:0 5px;margin-left:4px;white-space:nowrap}
+.track ul,.panel ul{margin:6px 0 0;padding-left:18px;font-size:.9em}
+.track li,.panel li{margin-bottom:3px}
+li.blk{color:var(--bad)}li.wrn{color:#9a6400}li.act{color:#0b5394}
+.dose{background:#fbfdff}
+.dose table{width:100%;border-collapse:collapse;font-size:.9em;margin-top:6px}
+.dose td{padding:4px 6px;border-bottom:1px solid #eef2f5}
+.dose td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+.dose .waste{color:#d35400;font-size:.88em;margin-top:6px}
+.seg{display:flex;gap:4px;margin:4px 0 2px;flex-wrap:wrap}
+.seg button{flex:1;border:1px solid var(--blue);background:#fff;color:var(--blue-d);border-radius:5px;padding:5px 4px;font-size:.85em;cursor:pointer}
+.seg button.on{background:var(--blue);color:#fff}
+.nhi{background:#f4f6fe;border-color:#d5dcf7}
+.nhi h3{color:#2c3e8f}
+.refs{font-size:.82em;color:#555;margin-top:26px;border-top:1px solid #e1e8ed;padding-top:10px}
+.refs ol{padding-left:18px}
+.disclaimer{font-size:.82em;color:#7a3b3b;background:#fdf3f3;border-radius:6px;padding:8px 12px;margin-top:10px}
+.ver{font-size:.78em;color:#8899a6;text-align:center;margin-top:10px}
+/* 手機底部摘要列 */
+.mbar{display:none;position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #d6e2ea;box-shadow:0 -2px 8px rgba(0,0,0,.08);padding:8px 12px;gap:6px;align-items:center;z-index:20;font-size:.88em}
+.mbar button{margin-left:auto}
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .result-col{position:static}
+  .mbar{display:flex}
+  .container{padding:16px}
+  body{padding:0 0 70px}
+  .container{border-radius:0}
+}
+@media print{.toolbar,.mbar,button{display:none!important}.layout{grid-template-columns:1fr}.result-col{position:static}body{background:#fff}}
+</style>
 </head>
 <body>
 
 <div class="container">
-    <h1>急性缺血性腦中風 (AIS) 決策支援</h1>
+  <h1>急性缺血性腦中風 (AIS) 決策支援</h1>
+  <p class="sub">IV 血栓溶解 (alteplase / tenecteplase) 與動脈取栓 (EVT) 雙軌評估 · 依 2026 AHA/ASA 指引 · 附台灣健保 rt-PA 條件檢核</p>
+  <div class="toolbar">
+    <button class="tbtn" id="btnExample" type="button">載入示例</button>
+    <button class="tbtn" id="btnReset" type="button">清除重填</button>
+    <button class="tbtn primary" id="btnCopy" type="button">複製評估摘要</button>
+  </div>
 
-    <!-- 階段一：時間評估 -->
+  <div class="layout">
+  <div class="input-col">
+
+    <!-- 1. 時間 -->
     <h2>1. 黃金時窗評估</h2>
     <div class="form-group">
-        <label>最後正常時間 (Last Known Well):</label>
-        <input type="datetime-local" id="timeLkw" required>
+      <label class="f">發作型態</label>
+      <select id="onsetType">
+        <option value="known">發作時間明確（目擊發作）</option>
+        <option value="wake">醒來即發現（wake-up stroke）</option>
+        <option value="unknown">發作時間不明（非睡眠中，例如獨居被發現）</option>
+      </select>
     </div>
-    <div class="form-group">
-        <label>目前評估時間:</label>
-        <input type="datetime-local" id="timeNow" required>
+    <div class="row tw">
+      <div class="form-group">
+        <label class="f">最後正常時間 (Last Known Well)</label>
+        <input type="datetime-local" id="timeLkw">
+      </div>
+      <div class="form-group">
+        <label class="f">目前評估時間</label>
+        <div class="inline"><input type="datetime-local" id="timeNow"><button class="tbtn" type="button" id="btnNow">現在</button></div>
+      </div>
     </div>
+    <div id="wakeBox" class="row tw hidden">
+      <div class="form-group">
+        <label class="f">症狀被發現時間 <span class="hint">（DWI-FLAIR 路徑用）</span></label>
+        <input type="datetime-local" id="timeRecog">
+      </div>
+      <div class="form-group" id="sleepMidGroup">
+        <label class="f">睡眠中點 <span class="hint">（入睡與醒來的中間時間；灌流路徑用）</span></label>
+        <input type="datetime-local" id="timeSleepMid">
+      </div>
+    </div>
+    <div id="timeMsg" class="note">距最後正常時間：—</div>
 
-    <!-- 階段二：臨床與影像篩檢 -->
-    <h2>2. 臨床與影像資訊</h2>
-    <div class="form-group">
-        <label>病患體重 (kg) - 計算 tPA 劑量用:</label>
-        <input type="number" id="weight" min="30" max="150" value="60">
+    <!-- 2. 臨床 -->
+    <h2>2. 病人與臨床資訊</h2>
+    <div class="row">
+      <div class="form-group">
+        <label class="f">年齡 (歲)</label>
+        <input type="number" id="age" min="0" max="120" step="1" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="f">體重 (kg) <span class="hint">劑量用，必填</span></label>
+        <input type="number" id="weight" min="20" max="250" step="0.1" inputmode="decimal">
+      </div>
+      <div class="form-group">
+        <label class="f">發病前 mRS</label>
+        <select id="preMrs">
+          <option value="">— 請選擇 —</option>
+          <option value="0">0 完全無症狀</option>
+          <option value="1">1 有症狀但無明顯失能</option>
+          <option value="2">2 輕度失能（生活可自理）</option>
+          <option value="3">3 中度失能（需部分協助，可自行行走）</option>
+          <option value="4">4 中重度失能（無法自行行走）</option>
+          <option value="5">5 重度失能（臥床、需持續照護）</option>
+        </select>
+      </div>
     </div>
-
-    <!-- NIHSS 計算機 -->
-    <details>
-        <summary>NIHSS 神經學評分 <span class="score-display">總分: <span id="nihss-total">0</span> 分</span></summary>
-        <div class="calc-content">
-            <div class="form-group">
-                <label>1a. 意識程度</label>
-                <select class="nihss-item" onchange="calcNIHSS()">
-                    <option value="0">0 - 清醒，反應敏銳</option>
-                    <option value="1">1 - 嗜睡，輕微刺激可喚醒</option>
-                    <option value="2">2 - 遲鈍，需強烈刺激</option>
-                    <option value="3">3 - 昏迷，僅有反射</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>1b. 意識狀態提問 (月份與年齡)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 兩題皆對</option><option value="1">1 - 答對一題</option><option value="2">2 - 皆錯或無法回答</option></select>
-            </div>
-            <div class="form-group">
-                <label>1c. 意識狀態指令 (閉眼與握拳)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 兩項皆正確</option><option value="1">1 - 正確一項</option><option value="2">2 - 皆錯</option></select>
-            </div>
-            <div class="form-group">
-                <label>2. 凝視 (Gaze)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 部份凝視麻痺</option><option value="2">2 - 完全凝視麻痺</option></select>
-            </div>
-            <div class="form-group">
-                <label>3. 視野 (Visual)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無視野缺損</option><option value="1">1 - 部份偏盲</option><option value="2">2 - 完全偏盲</option><option value="3">3 - 雙側偏盲或失明</option></select>
-            </div>
-            <div class="form-group">
-                <label>4. 顏面神經麻痺 (Facial Palsy)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 輕微(鼻唇溝變平)</option><option value="2">2 - 部份麻痺(下半部癱瘓)</option><option value="3">3 - 完全麻痺(單或雙側)</option></select>
-            </div>
-            <div class="form-group">
-                <label>5. 上肢運動 (Motor Arm) - 左/右分開計分，此處取最嚴重側</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無下垂 (維持10秒)</option><option value="1">1 - 漂移下垂但不觸床</option><option value="2">2 - 抗重力，但無法維持10秒</option><option value="3">3 - 無法抗重力(僅能平移)</option><option value="4">4 - 無動作</option></select>
-            </div>
-            <div class="form-group">
-                <label>6. 下肢運動 (Motor Leg) - 左/右分開計分，此處取最嚴重側</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無下垂 (維持5秒)</option><option value="1">1 - 漂移下垂但不觸床</option><option value="2">2 - 抗重力，但無法維持5秒</option><option value="3">3 - 無法抗重力(僅能平移)</option><option value="4">4 - 無動作</option></select>
-            </div>
-            <div class="form-group">
-                <label>7. 肢體協調 (Limb Ataxia)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無</option><option value="1">1 - 一側肢體有</option><option value="2">2 - 兩側肢體皆有</option></select>
-            </div>
-            <div class="form-group">
-                <label>8. 感覺 (Sensory)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 輕至中度感覺缺失</option><option value="2">2 - 嚴重或完全感覺缺失</option></select>
-            </div>
-            <div class="form-group">
-                <label>9. 語言 (Best Language)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 輕至中度失語</option><option value="2">2 - 嚴重失語</option><option value="3">3 - 全面失語/無語</option></select>
-            </div>
-            <div class="form-group">
-                <label>10. 構音 (Dysarthria)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 正常</option><option value="1">1 - 輕至中度</option><option value="2">2 - 嚴重/無法言語</option></select>
-            </div>
-            <div class="form-group">
-                <label>11. 忽略症 (Extinction/Inattention)</label>
-                <select class="nihss-item" onchange="calcNIHSS()"><option value="0">0 - 無</option><option value="1">1 - 忽略一種模態(視/觸/聽)</option><option value="2">2 - 嚴重半側忽略</option></select>
-            </div>
-        </div>
-    </details>
-
-    <div class="form-group">
-        <label>CT ASPECTS 分數 (0-10, 由放射科或 AI 提供):</label>
-        <input type="number" id="aspects" min="0" max="10" value="10">
+    <div class="row">
+      <div class="form-group">
+        <label class="f">收縮壓 SBP (mmHg)</label>
+        <input type="number" id="sbp" min="40" max="300" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="f">舒張壓 DBP (mmHg)</label>
+        <input type="number" id="dbp" min="20" max="200" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="f">血糖 (mg/dL)</label>
+        <input type="number" id="glucose" min="10" max="2000" inputmode="numeric">
+      </div>
     </div>
-    
     <div class="checkbox-group">
-        <label><input type="checkbox" id="hasLvo"> CTA/MRA 證實有大血管阻塞 (ICA 或 MCA M1/M2)</label>
+      <label><input type="checkbox" id="bpRefractory"> 積極降壓後血壓仍無法降至 &lt;185/110 mmHg</label>
     </div>
 
-    <!-- 階段三：禁忌症檢核 -->
-    <h2>3. 絕對禁忌症檢核 (若有請勾選)</h2>
+    <!-- NIHSS -->
+    <div class="form-group" style="margin-top:12px">
+      <label class="f">NIHSS 總分 <span class="hint">可直接輸入，或展開下方計算機逐項評分（會自動帶入）</span></label>
+      <input type="number" id="nihss" min="0" max="42" step="1" inputmode="numeric">
+    </div>
+    <details id="nihssCalc">
+      <summary>NIHSS 逐項計算機 <span class="score-display">總分: <span id="nihss-total">0</span> / 42</span></summary>
+      <div class="calc-content">
+        <div class="nihss-grid" id="nihssGrid"></div>
+        <div class="note">5、6 項左右分開計分。UN（截肢/關節融合等無法測試）不計分。共 15 項，滿分 42。</div>
+      </div>
+    </details>
+    <div class="checkbox-group" id="disablingBox">
+      <label><input type="checkbox" id="disabling"> 症狀屬「明顯失能」（若持續存在，將無法完成基本日常活動 BATHE（洗澡/穿衣、行走、如廁、衛生、進食）或回到工作；含無法獨立行走或吞嚥）<span class="hint">— NIHSS 0–5 時必須判斷</span></label>
+    </div>
+
+    <!-- 凝血與用藥 -->
+    <div class="form-group" style="margin-top:12px">
+      <label class="f">抗栓藥物使用</label>
+      <select id="anticoag">
+        <option value="none">無抗凝血劑（含僅使用抗血小板藥物）</option>
+        <option value="warfarin">Warfarin（需 INR）</option>
+        <option value="doac">DOAC，最後一劑 &lt;48 小時</option>
+        <option value="heparin">48 小時內使用 heparin（需 aPTT）</option>
+        <option value="lmwh">24 小時內使用治療劑量 LMWH</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="form-group"><label class="f">血小板 (×10³/µL)</label><input type="number" id="plt" min="0" max="2000" inputmode="numeric"></div>
+      <div class="form-group"><label class="f">INR</label><input type="number" id="inr" min="0.5" max="20" step="0.01" inputmode="decimal"></div>
+      <div class="form-group"><label class="f">aPTT (秒)</label><input type="number" id="aptt" min="10" max="200" step="0.1" inputmode="decimal"></div>
+      <div class="form-group"><label class="f">PT (秒)</label><input type="number" id="pt" min="5" max="200" step="0.1" inputmode="decimal"></div>
+    </div>
+    <div class="note">沒有理由懷疑凝血異常（未用 warfarin / heparin、無已知血液疾病）時，不必等檢驗結果即可開始 IVT（AHA 2026 4.6.1-10，2a）；報告若異常再停藥。</div>
+
+    <!-- 3. 影像 -->
+    <h2>3. 影像資訊</h2>
+    <div class="form-group">
+      <label class="f">非顯影 CT / MRI 結果</label>
+      <select id="ct">
+        <option value="clear">無出血、無大範圍明顯低密度</option>
+        <option value="hypodense">大範圍明顯低密度（比對側白質更低，且符合症狀；&gt;1/3 MCA）</option>
+        <option value="ich">顱內出血</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label class="f">ASPECTS (0–10)</label>
+        <input type="number" id="aspects" min="0" max="10" step="1" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="f">CTA / MRA 阻塞部位</label>
+        <select id="occl">
+          <option value="pending">尚未完成 / 待報告</option>
+          <option value="none">無大血管阻塞</option>
+          <option value="ica">ICA（內頸動脈）</option>
+          <option value="m1">MCA M1</option>
+          <option value="m2dom">M2 近端優勢分支 (dominant)</option>
+          <option value="m2nondom">M2 非優勢 / 共優勢分支</option>
+          <option value="distal">遠端 MCA、ACA 或 PCA</option>
+          <option value="basilar">基底動脈 (basilar)</option>
+        </select>
+      </div>
+      <div class="form-group" id="pcAspectsGroup">
+        <label class="f">PC-ASPECTS (0–10)</label>
+        <input type="number" id="pcAspects" min="0" max="10" step="1" inputmode="numeric">
+      </div>
+    </div>
     <div class="checkbox-group">
-        <label><input type="checkbox" class="tpa-contra"> [tPA] 腦部影像顯示顱內出血 (ICH)</label>
-        <label><input type="checkbox" class="tpa-contra"> [tPA] 近期有嚴重創傷、大手術或腸胃道出血</label>
-        <label><input type="checkbox" class="tpa-contra"> [tPA] 收縮壓 > 185 或 舒張壓 > 110 (且藥物無法控制)</label>
-        <label><input type="checkbox" class="tpa-contra"> [tPA] 正在使用 DOACs 或 Warfarin (INR > 1.7)</label>
-        <label><input type="checkbox" class="evt-contra"> [EVT] 發病前 mRS 失能分數 ≥ 3 分或預期壽命極短</label>
+      <label id="massEffectLbl"><input type="checkbox" id="massEffect"> 影像有明顯占位效應 (significant mass effect)</label>
+      <label><input type="checkbox" id="penumbra"> 自動化灌流影像顯示可挽救的缺血半影區 (salvageable penumbra)</label>
+      <label id="dwiFlairLbl"><input type="checkbox" id="dwiFlair"> MRI DWI-FLAIR mismatch（DWI 病灶 &lt;1/3 MCA，FLAIR 無明顯訊號變化）</label>
     </div>
 
-    <!-- 階段四：次級預防風險評估 -->
-    <h2>4. 慢性風險評估 (選填)</h2>
-    <details>
-        <summary>CHA2DS2-VASc 中風風險 <span class="score-display">總分: <span id="cha-total">0</span> 分</span></summary>
-        <div class="calc-content checkbox-group">
-            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 鬱血性心衰竭 (C, 1分)</label>
-            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 高血壓 (H, 1分)</label>
-            <label><input type="checkbox" class="cha-item" value="2" onchange="calcRisk()"> 年齡 ≥ 75 歲 (A2, 2分)</label>
-            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 糖尿病 (D, 1分)</label>
-            <label><input type="checkbox" class="cha-item" value="2" onchange="calcRisk()"> 曾中風或 TIA (S2, 2分)</label>
-            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 血管疾病 (V, 1分)</label>
-            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 年齡 65-74 歲 (A, 1分)</label>
-            <label><input type="checkbox" class="cha-item" value="1" onchange="calcRisk()"> 女性 (Sc, 1分)</label>
-        </div>
-    </details>
-
-    <details>
-        <summary>HAS-BLED 出血風險 <span class="score-display">總分: <span id="has-total">0</span> 分</span></summary>
-        <div class="calc-content checkbox-group">
-            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 高血壓收縮壓 >160 (H, 1分)</label>
-            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 肝腎功能異常 (A, 各1分最多2分)</label>
-            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 肝腎功能異常之第二項</label>
-            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 曾中風史 (S, 1分)</label>
-            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 曾出血病史或體質 (B, 1分)</label>
-            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> INR 浮動不穩 (L, 1分)</label>
-            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 年齡 > 65 歲 (E, 1分)</label>
-            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 使用藥物(NSAID/抗血小板)或酗酒 (D, 各1分最多2分)</label>
-            <label><input type="checkbox" class="has-item" value="1" onchange="calcRisk()"> 藥物/酗酒之第二項</label>
-        </div>
-    </details>
-
-    <button class="btn" onclick="calculateDecision()">產出處置決策</button>
-
-    <!-- 決策輸出 -->
-    <div id="result-box">
-        <h3 id="result-title"></h3>
-        <p id="result-desc"></p>
-        <div id="dose-box" class="dose-calculator" style="display:none;"></div>
+    <!-- 4. 禁忌 -->
+    <h2>4. 禁忌症與風險檢核</h2>
+    <div class="note">依 AHA 2026 Table 8 分級：<span class="tag t-abs">絕對</span>不應給 IVT；<span class="tag t-rel">相對</span>需個別評估風險效益。凝血數值、血壓、血糖、影像已在上方輸入，系統會自動判讀。</div>
+    <div class="grp-title">絕對禁忌</div>
+    <div class="checkbox-group" id="absList"></div>
+    <div class="grp-title">相對禁忌 / 需個別評估</div>
+    <div class="checkbox-group" id="relList"></div>
+    <div class="grp-title">EVT 考量</div>
+    <div class="checkbox-group">
+      <label><input type="checkbox" id="evtLimit"> 預期壽命極短（&lt;3–6 個月）或病人/家屬經說明後不接受侵入性治療</label>
     </div>
+    <details>
+      <summary>台灣健保 rt-PA 給付排除條件（補充） <span class="score-display" id="nhiCount">0 項</span></summary>
+      <div class="calc-content checkbox-group" id="nhiList"></div>
+    </details>
+
+    <!-- 5. 次級預防 -->
+    <h2>5. 次級預防風險評估（選填）</h2>
+    <div class="checkbox-group">
+      <label><input type="checkbox" id="af"> 心房顫動 (AF)</label>
+    </div>
+    <details>
+      <summary>CHA₂DS₂-VASc 中風風險 <span class="score-display">總分: <span id="cha-total">2</span> 分</span></summary>
+      <div class="calc-content checkbox-group">
+        <div class="note">本次缺血性中風已固定計 S2 = 2 分；年齡由上方「年齡」自動帶入。病人已中風，若有 AF 分數必 ≥2，即符合口服抗凝血劑適應症；此分數主要供紀錄。</div>
+        <label><input type="checkbox" class="cha-item" data-pts="1"> 鬱血性心衰竭 / LVEF ≤40% (C, 1分)</label>
+        <label><input type="checkbox" class="cha-item" data-pts="1"> 高血壓 (H, 1分)</label>
+        <label><input type="checkbox" class="cha-item" data-pts="1"> 糖尿病 (D, 1分)</label>
+        <label><input type="checkbox" class="cha-item" data-pts="1"> 血管疾病：心肌梗塞、周邊動脈疾病、主動脈斑塊 (V, 1分)</label>
+        <label><input type="checkbox" class="cha-item" data-pts="1" id="chaFemale"> 女性 (Sc, 1分)</label>
+        <label><input type="checkbox" checked disabled> 曾中風 / TIA / 栓塞 (S2, 2分)</label>
+        <div class="note" id="chaAgeNote">年齡：未輸入</div>
+      </div>
+    </details>
+    <details>
+      <summary>HAS-BLED 出血風險 <span class="score-display">總分: <span id="has-total">1</span> 分</span></summary>
+      <div class="calc-content checkbox-group">
+        <div class="note">本次中風已固定計 S = 1 分；年齡 &gt;65 由上方「年齡」自動帶入。≥3 分代表出血風險高，應矯正可改變因子，<b>不是</b>不給抗凝血劑的理由。</div>
+        <label><input type="checkbox" class="has-item"> 未控制高血壓，收縮壓 &gt;160 (H)</label>
+        <label><input type="checkbox" class="has-item"> 腎功能異常：透析、腎移植或 Cr ≥2.26 mg/dL (A)</label>
+        <label><input type="checkbox" class="has-item"> 肝功能異常：肝硬化或 bilirubin &gt;2×、AST/ALT &gt;3× 正常上限 (A)</label>
+        <label><input type="checkbox" checked disabled> 中風病史 (S)</label>
+        <label><input type="checkbox" class="has-item"> 出血病史或出血體質 (B)</label>
+        <label><input type="checkbox" class="has-item"> INR 不穩定（TTR &lt;60%，僅用 warfarin 者）(L)</label>
+        <label><input type="checkbox" class="has-item"> 併用抗血小板藥或 NSAID (D)</label>
+        <label><input type="checkbox" class="has-item"> 酒精濫用 ≥8 單位/週 (D)</label>
+        <div class="note" id="hasAgeNote">年齡：未輸入</div>
+      </div>
+    </details>
+  </div>
+
+  <!-- 結果 -->
+  <div class="result-col" id="result">
+    <div class="panel" id="scenarioBox">
+      <h3 id="scenarioTitle">請輸入資料</h3>
+      <div id="scenarioDesc" style="font-size:.92em"></div>
+      <div class="timer" id="timerLine"></div>
+    </div>
+    <div class="panel track" id="ivtBox">
+      <div class="head"><h3>IV 血栓溶解 (IVT)</h3><span class="badge" id="ivtBadge"></span></div>
+      <ul id="ivtList"></ul>
+    </div>
+    <div class="panel track" id="evtBox">
+      <div class="head"><h3>動脈取栓 (EVT)</h3><span class="badge" id="evtBadge"></span></div>
+      <ul id="evtList"></ul>
+    </div>
+    <div class="panel dose hidden" id="doseBox">
+      <h3>💊 IVT 劑量</h3>
+      <div class="seg" id="agentSeg">
+        <button type="button" data-agent="alt09" class="on">Alteplase 0.9</button>
+        <button type="button" data-agent="tnk">Tenecteplase</button>
+        <button type="button" data-agent="alt06">Alteplase 0.6</button>
+      </div>
+      <div id="doseBody"></div>
+    </div>
+    <div class="panel nhi hidden" id="nhiBox">
+      <h3>台灣健保 rt-PA 條件</h3>
+      <ul id="nhiOut"></ul>
+    </div>
+    <div class="panel" id="afterBox">
+      <h3>後續處置重點</h3>
+      <ul id="afterList"></ul>
+    </div>
+  </div>
+  </div>
+
+  <div class="refs">
+    <b>參考資料</b>
+    <ol>
+      <li>Prabhakaran S, Gonzalez NR, Zachrison KS, et al. 2026 Guideline for the Early Management of Patients With Acute Ischemic Stroke: A Guideline From the AHA/ASA. <i>Stroke</i>. 2026. doi:<a href="https://doi.org/10.1161/STR.0000000000000513" target="_blank" rel="noopener">10.1161/STR.0000000000000513</a>（4.3 血壓、4.6 IVT、Table 7 劑量、Table 8 禁忌、4.7 EVT、4.8 抗血小板、4.9 抗凝血）</li>
+      <li>健保 rt-PA 收案與排除條件（收案 3 項、排除 28 項；112.10.1 起放寬至發作 4.5 小時內）、機械取栓 112.11.1 起放寬至 24 小時內 — 依高雄長庚神經內科教學簡報整理，實際以健保署最新藥品給付規定與院內 SOP 為準。</li>
+      <li>NIH Stroke Scale（NINDS，公共領域）。CHA₂DS₂-VASc（Lip 2010）、HAS-BLED（Pisters 2010）。</li>
+    </ol>
+  </div>
+  <div class="disclaimer">⚠️ 本工具僅供醫療專業人員教育與決策輔助，不可取代臨床判斷。給藥前請依院內 SOP 由兩人雙重核對體重、劑量與禁忌症。Tenecteplase 之台灣核准適應症與健保給付請依院內規定確認。</div>
+  <div class="ver">v2.0 · 2026-10-23</div>
 </div>
 
+<div class="mbar" id="mbar"><span id="mbarText">—</span><button class="tbtn" type="button" id="mbarBtn">看結果</button></div>
+
 <script>
-    window.onload = function() {
-        let now = new Date();
-        let lkw = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        lkw.setMinutes(lkw.getMinutes() - lkw.getTimezoneOffset());
-        document.getElementById('timeNow').value = now.toISOString().slice(0,16);
-        document.getElementById('timeLkw').value = lkw.toISOString().slice(0,16);
-    };
+/*ENGINE-START*/
+const AIS = (() => {
+  const r1 = x => Math.round(x * 10) / 10;
+  const num = v => (v === '' || v === null || v === undefined || Number.isNaN(Number(v))) ? null : Number(v);
 
-    // 即時計算 NIHSS
-    function calcNIHSS() {
-        let total = 0;
-        document.querySelectorAll('.nihss-item').forEach(select => {
-            total += parseInt(select.value);
-        });
-        document.getElementById('nihss-total').innerText = total;
+  // NIHSS（NINDS 版本）：id, 標題, 選項 [分數, 說明]；含 UN 者以 'UN' 表示不計分
+  const NIHSS = [
+    ['1a', '1a. 意識程度', [[0,'清醒'],[1,'嗜睡，輕微刺激可喚醒'],[2,'需反覆或強烈刺激才有反應'],[3,'僅反射動作或完全無反應']]],
+    ['1b', '1b. 意識提問（月份、年齡）', [[0,'兩題皆對'],[1,'答對一題'],[2,'皆錯或無法回答']]],
+    ['1c', '1c. 意識指令（睜閉眼、握放拳）', [[0,'兩項皆正確'],[1,'正確一項'],[2,'皆錯']]],
+    ['2', '2. 最佳凝視', [[0,'正常'],[1,'部分凝視麻痺'],[2,'強迫偏向或完全凝視麻痺']]],
+    ['3', '3. 視野', [[0,'無視野缺損'],[1,'部分偏盲'],[2,'完全偏盲'],[3,'雙側偏盲（含皮質盲）']]],
+    ['4', '4. 顏面麻痺', [[0,'正常'],[1,'輕微（鼻唇溝變平、笑時不對稱）'],[2,'部分（下半臉幾乎或完全麻痺）'],[3,'完全（單或雙側上下臉皆無動作）']]],
+    ['5a', '5a. 左上肢運動', [[0,'無下垂（維持 10 秒）'],[1,'下垂，未觸床'],[2,'可抗重力，但 10 秒內落下觸床'],[3,'無法抗重力'],[4,'完全無動作'],['UN','UN 截肢/關節融合']]],
+    ['5b', '5b. 右上肢運動', [[0,'無下垂（維持 10 秒）'],[1,'下垂，未觸床'],[2,'可抗重力，但 10 秒內落下觸床'],[3,'無法抗重力'],[4,'完全無動作'],['UN','UN 截肢/關節融合']]],
+    ['6a', '6a. 左下肢運動', [[0,'無下垂（維持 5 秒）'],[1,'下垂，未觸床'],[2,'可抗重力，但 5 秒內落下觸床'],[3,'無法抗重力'],[4,'完全無動作'],['UN','UN 截肢/關節融合']]],
+    ['6b', '6b. 右下肢運動', [[0,'無下垂（維持 5 秒）'],[1,'下垂，未觸床'],[2,'可抗重力，但 5 秒內落下觸床'],[3,'無法抗重力'],[4,'完全無動作'],['UN','UN 截肢/關節融合']]],
+    ['7', '7. 肢體運動失調', [[0,'無'],[1,'一肢'],[2,'兩肢'],['UN','UN 截肢/關節融合']]],
+    ['8', '8. 感覺', [[0,'正常'],[1,'輕至中度感覺缺失'],[2,'嚴重或完全感覺缺失']]],
+    ['9', '9. 最佳語言', [[0,'正常'],[1,'輕至中度失語'],[2,'嚴重失語'],[3,'無語或全面失語']]],
+    ['10', '10. 構音障礙', [[0,'正常'],[1,'輕至中度'],[2,'嚴重（無法理解或無語）'],['UN','UN 插管或其他物理障礙']]],
+    ['11', '11. 忽略症（消失/不注意）', [[0,'無'],[1,'單一感覺模式的不注意或消失'],[2,'嚴重半側忽略或多於一種模式']]]
+  ];
+  function nihssTotal(vals) {
+    let t = 0;
+    for (const v of Object.values(vals || {})) { const n = num(v); if (n !== null) t += n; }
+    return t;
+  }
+
+  // AHA 2026 Table 8
+  const ABS = [
+    ['tbi14', '14 天內中重度頭部外傷（意識喪失 >30 分鐘、GCS <13，或影像有出血/挫傷/顱骨骨折）'],
+    ['nsurg14', '14 天內顱內或脊髓手術'],
+    ['sci3m', '3 個月內急性脊髓損傷'],
+    ['axial', '腦實質內 (intra-axial) 腫瘤'],
+    ['ie', '感染性心內膜炎（臨床表現符合）'],
+    ['aortic', '已知或懷疑主動脈弓剝離'],
+    ['aria', '使用類澱粉蛋白抗體（lecanemab / donanemab 等）或有 ARIA'],
+    ['activeBleed', '活動性內出血']
+  ];
+  const REL = [
+    ['stroke3m', '3 個月內缺血性中風'],
+    ['priorIch', '曾有顱內出血（類澱粉血管病變者風險更高）'],
+    ['trauma14', '14 天內重大非中樞神經系統創傷'],
+    ['surg10', '10 天內重大非中樞神經系統手術'],
+    ['gigu21', '21 天內腸胃道或泌尿道出血'],
+    ['icDissect', '顱內動脈剝離'],
+    ['vascMal', '未治療的顱內血管畸形（未破裂）'],
+    ['stemi3m', '3 個月內 STEMI'],
+    ['pericarditis', '急性心包膜炎'],
+    ['lvThrombus', '左心房或左心室血栓'],
+    ['malignancy', '全身性活動性惡性腫瘤'],
+    ['pregnancy', '懷孕或產後'],
+    ['artPuncture7', '7 天內不可壓迫部位動脈穿刺（如鎖骨下動脈）'],
+    ['tbi3m', '14 天–3 個月內中重度頭部外傷'],
+    ['nsurg3m', '14 天–3 個月內顱內/脊髓手術'],
+    ['cmb10', 'MRI 已知大量腦微出血（>10 顆）']
+  ];
+  // 健保 rt-PA 排除條件中，AHA 未列為禁忌或需另外勾選者
+  const NHI_EXTRA = [
+    ['seizure', '中風發作時併發癲癇'],
+    ['strokeDm', '過去曾中風且合併糖尿病'],
+    ['bleedDiathesis', '目前或 6 個月內有顯著出血障礙、易出血體質'],
+    ['cpr', '過久或創傷性 CPR（>2 分鐘）、分娩'],
+    ['liver', '嚴重肝病（肝衰竭、肝硬化、門脈高壓/食道靜脈曲張、急性肝炎）'],
+    ['retinopathy', '出血性視網膜病變或其他出血性眼疾'],
+    ['pancreatitis', '急性胰臟炎'],
+    ['ulcer3m', '3 個月內胃腸道潰瘍'],
+    ['bleedTumor', '易出血之腫瘤、動脈瘤或動靜脈畸形'],
+    ['otherRisk', '其他增加出血風險狀況（如透析、嚴重心衰竭、身體極度衰弱）']
+  ];
+
+  // 劑量 ----------------------------------------------------------
+  const TNK_BANDS = [[60, 15], [70, 17.5], [80, 20], [90, 22.5], [Infinity, 25]];
+  function validWeight(w) { const n = num(w); return n !== null && n >= 20 && n <= 250 ? n : null; }
+  function alteplase(weight, perKg = 0.9) {
+    const w = validWeight(weight); if (w === null) return null;
+    const max = perKg === 0.9 ? 90 : 60;
+    const bolusPct = perKg === 0.9 ? 0.10 : 0.15;
+    const total = Math.min(r1(w * perKg), max);
+    const bolus = r1(total * bolusPct);
+    const infusion = r1(total - bolus);
+    const vials = Math.ceil(total / 50);
+    return { agent: perKg === 0.9 ? 'alt09' : 'alt06', perKg, weight: w, capped: w * perKg > max, total, bolus, infusion,
+      bolusPct, vials, drawn: vials * 50, discard: r1(vials * 50 - total), rateMlH: infusion /* 1 mg/mL，60 分鐘 */ };
+  }
+  function tenecteplase(weight) {
+    const w = validWeight(weight); if (w === null) return null;
+    const band = TNK_BANDS.find(b => w < b[0]);
+    const dose = band[1];
+    const exact = Math.min(r1(w * 0.25), 25);
+    return { agent: 'tnk', weight: w, dose, ml: r1(dose / 5), exact, exactMl: r1(exact / 5), under50: w < 50 };
+  }
+
+  // EVT ----------------------------------------------------------
+  function evt(p) {
+    const R = [], t = p.tLkw, nihss = num(p.nihss), mrs = num(p.preMrs), asp = num(p.aspects), age = num(p.age), pc = num(p.pcAspects);
+    const out = (status, cor, title) => ({ status, cor, title, reasons: R });
+    if (p.ct === 'ich') { R.push(['blk', '影像顯示顱內出血：非缺血性中風，不適用 EVT 路徑']); return out('no', '', '不適用'); }
+    if (t === null) { R.push(['act', '請輸入有效的最後正常時間']); return out('pending', '', '待輸入時間'); }
+    if (t > 24) { R.push(['blk', `距最後正常 ${r1(t)} 小時，超過 24 小時，指引無 EVT 建議`]); return out('no', '', '超過時窗'); }
+    if (p.evtLimit) { R.push(['blk', '預期壽命極短或不接受侵入性治療']); return out('no', '', '不建議'); }
+    const occl = p.occl || 'pending';
+    if (occl === 'pending') { R.push(['act', '需緊急 CTA/MRA（頸部 + 顱內）確認大血管阻塞（COR 1）；不必等 creatinine']); return out('pending', '', '待血管影像'); }
+    if (occl === 'none') { R.push(['blk', '無大血管阻塞']); return out('no', '', '無 EVT 適應症'); }
+    if (occl === 'm2nondom' || occl === 'distal') {
+      R.push(['blk', '非優勢/共優勢 M2、遠端 MCA、ACA、PCA 阻塞：EVT 無益（COR 3: No Benefit，ESCAPE-MeVO / DISTAL）']);
+      return out('no', '3: No Benefit', '不建議');
+    }
+    const miss = [];
+    if (nihss === null) miss.push('NIHSS');
+    if (mrs === null) miss.push('發病前 mRS');
+    if (occl === 'basilar' ? pc === null : asp === null) miss.push(occl === 'basilar' ? 'PC-ASPECTS' : 'ASPECTS');
+    if (miss.length) { R.push(['act', '尚缺：' + miss.join('、')]); return out('pending', '', '資料不足'); }
+
+    if (occl === 'basilar') {
+      if (mrs > 1) { R.push(['blk', `發病前 mRS ${mrs}：基底動脈 EVT 證據限於 mRS 0–1`]); return out('no', '', '證據不足'); }
+      if (pc < 6) { R.push(['blk', `PC-ASPECTS ${pc} <6：缺血範圍大，證據不足`]); return out('no', '', '證據不足'); }
+      if (nihss >= 10) { R.push(['ok', `基底動脈阻塞、mRS 0–1、NIHSS ${nihss} ≥10、PC-ASPECTS ${pc} ≥6、24 小時內`]); return out('yes', '1', '建議 EVT'); }
+      if (nihss >= 6) { R.push(['wrn', `NIHSS ${nihss}（6–9）：效益未確立，個別評估`]); return out('consider', '2b', '可考慮'); }
+      R.push(['blk', `NIHSS ${nihss} <6：無證據支持`]); return out('no', '', '證據不足');
     }
 
-    // 即時計算 CHA2DS2-VASc 與 HAS-BLED
-    function calcRisk() {
-        let chaTotal = 0;
-        document.querySelectorAll('.cha-item:checked').forEach(cb => { chaTotal += parseInt(cb.value); });
-        document.getElementById('cha-total').innerText = chaTotal;
+    const label = occl === 'm2dom' ? 'M2 近端優勢分支' : (occl === 'ica' ? 'ICA' : 'M1');
+    if (nihss < 6) { R.push(['blk', `NIHSS ${nihss} <6：指引 EVT 建議均要求 NIHSS ≥6（輕症 LVO 個別討論）`]); return out('no', '', '證據不足'); }
+    if (mrs >= 5) { R.push(['blk', '發病前 mRS 5：無 EVT 證據']); return out('no', '', '不建議'); }
 
-        let hasTotal = 0;
-        document.querySelectorAll('.has-item:checked').forEach(cb => { hasTotal += parseInt(cb.value); });
-        document.getElementById('has-total').innerText = hasTotal;
+    if (occl === 'm2dom') {
+      if (t <= 6 && mrs <= 1 && asp >= 6) { R.push(['ok', `${label}、6 小時內、mRS 0–1、NIHSS ≥6、ASPECTS ≥6`]); R.push(['wrn', '效益尚不確定（AHA 2026 4.7.2-7）']); return out('yes', '2a', '合理'); }
+      R.push(['blk', `${label}：指引僅支持 6 小時內、mRS 0–1、ASPECTS ≥6（目前 ${r1(t)} 小時、mRS ${mrs}、ASPECTS ${asp}）`]);
+      return out('no', '', '證據不足');
     }
 
-    // 產出最終決策
-    function calculateDecision() {
-        const t1 = new Date(document.getElementById('timeLkw').value);
-        const t2 = new Date(document.getElementById('timeNow').value);
-        const diffHours = (t2 - t1) / (1000 * 60 * 60);
-        
-        const hasLvo = document.getElementById('hasLvo').checked;
-        const aspectsScore = parseInt(document.getElementById('aspects').value);
-        const aspectsLow = aspectsScore < 6; // 自動判斷分數小於6為低分
-        const weight = Math.min(parseFloat(document.getElementById('weight').value) || 60, 100);
-
-        let tpaContra = false;
-        document.querySelectorAll('.tpa-contra').forEach(cb => { if(cb.checked) tpaContra = true; });
-        
-        let evtContra = false;
-        document.querySelectorAll('.evt-contra').forEach(cb => { if(cb.checked) evtContra = true; });
-
-        let eligibleTpa = (diffHours <= 4.5) && !tpaContra;
-        let eligibleEvt = (diffHours <= 24) && hasLvo && !aspectsLow && !evtContra;
-
-        const resultBox = document.getElementById('result-box');
-        const resultTitle = document.getElementById('result-title');
-        const resultDesc = document.getElementById('result-desc');
-        const doseBox = document.getElementById('dose-box');
-        
-        resultBox.style.display = 'block';
-        doseBox.style.display = 'none';
-        resultBox.className = '';
-
-        const totalDose = (weight * 0.9).toFixed(1);
-        const bolus = (totalDose * 0.1).toFixed(1);
-        const infusion = (totalDose * 0.9).toFixed(1);
-        const waste = (50 - totalDose > 0) ? (50 - totalDose).toFixed(1) : (100 - totalDose).toFixed(1);
-
-        const doseHtml = `
-            <strong>💊 tPA 劑量精算 (0.9 mg/kg, Max 90mg)：</strong><br>
-            • 總劑量：<b>${totalDose} mg</b><br>
-            • 靜脈推注 (1分鐘)：<b>${bolus} mg</b><br>
-            • 靜脈點滴 (1小時)：<b>${infusion} mg</b><br>
-            <span style="color:#d35400;">⚠️ 請先從藥瓶中抽除並丟棄 <b>${waste} mg</b>，避免過量施打。</span>
-        `;
-
-        if (eligibleTpa && eligibleEvt) {
-            resultBox.classList.add('scenario-a');
-            resultTitle.innerHTML = "情境 A：Bridging Therapy (雙軌啟動)";
-            resultDesc.innerHTML = `時間窗為 ${diffHours.toFixed(1)} 小時，ASPECTS ${aspectsScore}分。<b>處置：立即施打 IV tPA，並同步呼叫介入小組進行 EVT。</b>`;
-            doseBox.innerHTML = doseHtml;
-            doseBox.style.display = 'block';
-        } else if (eligibleTpa && !eligibleEvt) {
-            resultBox.classList.add('scenario-b');
-            resultTitle.innerHTML = "情境 B：IV tPA Only";
-            let evtReason = (!hasLvo) ? "無大血管阻塞" : (aspectsLow ? `ASPECTS僅${aspectsScore}分` : "有EVT禁忌");
-            resultDesc.innerHTML = `時間窗為 ${diffHours.toFixed(1)} 小時。因 ${evtReason} 不安排動脈取栓。<b>處置：給予標準 IV tPA 治療。</b>`;
-            doseBox.innerHTML = doseHtml;
-            doseBox.style.display = 'block';
-        } else if (!eligibleTpa && eligibleEvt) {
-            resultBox.classList.add('scenario-c');
-            resultTitle.innerHTML = "情境 C：EVT Only (直接動脈取栓)";
-            let tpaReason = (diffHours > 4.5) ? "超時" : "有tPA禁忌症";
-            resultDesc.innerHTML = `因 ${tpaReason} 不打 tPA。ASPECTS ${aspectsScore}分。<b>處置：直接安排 EVT 動脈取栓。</b>`;
-        } else {
-            resultBox.classList.add('scenario-d');
-            resultTitle.innerHTML = "情境 D：皆不符合急症再灌注標準";
-            resultDesc.innerHTML = `無急症處置空間。<b>後續處置：</b>進入次級預防，請參考上方 CHA2DS2-VASc 與 HAS-BLED 評分，評估抗凝血劑 (OAC) 或抗血小板藥物給予時機。`;
-        }
+    // ICA / M1
+    const big = '條件：年齡 <80、無明顯占位效應';
+    if (t <= 6) {
+      if (mrs <= 1) {
+        if (asp >= 3) { R.push(['ok', `${label}、6 小時內、mRS 0–1、NIHSS ≥6、ASPECTS ${asp}（3–10）`]); if (asp <= 5) R.push(['wrn', '大梗塞核心 (ASPECTS 3–5)：注意 >80 歲、腎衰竭、預期壽命 <3 個月者證據有限']); return out('yes', '1', '建議 EVT'); }
+        if (age !== null && age < 80 && !p.massEffect) { R.push(['ok', `ASPECTS ${asp}（0–2）、年齡 ${age}、無占位效應、6 小時內`]); return out('yes', '2a', '合理'); }
+        R.push(['blk', `ASPECTS ${asp}（0–2）需同時符合${big}${age === null ? '（未輸入年齡）' : ''}`]);
+        return out('no', '', '不符合');
+      }
+      if (asp < 6) { R.push(['blk', `發病前 mRS ${mrs} 時，證據限於 ASPECTS ≥6`]); return out('no', '', '證據不足'); }
+      if (mrs === 2) { R.push(['ok', `發病前 mRS 2、ASPECTS ${asp} ≥6、6 小時內`]); return out('yes', '2a', '合理'); }
+      R.push(['wrn', `發病前 mRS ${mrs}（3–4）、ASPECTS ≥6：可能合理，需與家屬討論目標`]); return out('consider', '2b', '可考慮');
     }
+    // 6–24 h
+    if (mrs > 1) { R.push(['blk', `6–24 小時的 EVT 證據限於發病前 mRS 0–1（目前 ${mrs}）`]); return out('no', '', '證據不足'); }
+    if (asp >= 6) { R.push(['ok', `${label}、${r1(t)} 小時（6–24）、mRS 0–1、NIHSS ≥6、ASPECTS ${asp} ≥6`]); return out('yes', '1', '建議 EVT'); }
+    if (asp >= 3) {
+      if (age !== null && age < 80 && !p.massEffect) { R.push(['ok', `ASPECTS ${asp}（3–5）、年齡 ${age} <80、無占位效應、6–24 小時`]); return out('yes', '1', '建議 EVT'); }
+      R.push(['blk', `6–24 小時 ASPECTS 3–5 需${big}${age === null ? '（未輸入年齡）' : ''}`]); return out('no', '', '不符合');
+    }
+    R.push(['blk', `6–24 小時 ASPECTS ${asp} <3：無證據支持`]); return out('no', '', '證據不足');
+  }
+
+  // IVT ----------------------------------------------------------
+  function ivt(p, evtRes) {
+    const R = [], t = p.tLkw;
+    const out = (status, cor, title, route) => ({ status, cor, title, route: route || '', reasons: R });
+    const nihss = num(p.nihss), age = num(p.age), glu = num(p.glucose), sbp = num(p.sbp), dbp = num(p.dbp);
+    const plt = num(p.plt), inr = num(p.inr), aptt = num(p.aptt), pt = num(p.pt);
+    const blocks = [];
+    if (p.ct === 'ich') blocks.push('影像顯示急性顱內出血');
+    if (p.ct === 'hypodense') blocks.push('影像有大範圍明顯低密度（已成形梗塞）');
+    for (const [id, txt] of ABS) if (p.abs && p.abs.includes(id)) blocks.push(txt);
+    if (plt !== null && plt < 100) blocks.push(`血小板 ${plt}×10³ <100`);
+    if (inr !== null && inr > 1.7) blocks.push(`INR ${inr} >1.7`);
+    if (aptt !== null && aptt > 40) blocks.push(`aPTT ${aptt} 秒 >40`);
+    if (pt !== null && pt > 15) blocks.push(`PT ${pt} 秒 >15`);
+    if (p.anticoag === 'lmwh') blocks.push('24 小時內使用治療劑量 LMWH');
+    if (p.bpRefractory) blocks.push('血壓無法降至 <185/110');
+    if (nihss !== null && nihss <= 5 && !p.disabling) {
+      R.push(['blk', `NIHSS ${nihss} 且非明顯失能：IVT 不優於雙重抗血小板（COR 3: No Benefit）`]);
+      for (const b of blocks) R.push(['blk', b]);
+      return out('no', '3: No Benefit', '不建議');
+    }
+    if (blocks.length) { for (const b of blocks) R.push(['blk', b]); return out('no', '', '禁忌'); }
+    if (t === null) { R.push(['act', '請輸入有效的最後正常時間']); return out('pending', '', '待輸入時間'); }
+
+    // 時窗
+    let cor = '', route = '';
+    const onset = p.onsetType || 'known';
+    const lvo = ['ica', 'm1', 'm2dom', 'basilar'].includes(p.occl);
+    const evtNo = !evtRes || evtRes.status === 'no';
+    if (t <= 4.5) { cor = '1'; route = `距最後正常 ${r1(t)} 小時（≤4.5）`; }
+    else if (onset !== 'known' && p.dwiFlair && p.tRecog !== null && p.tRecog >= 0 && p.tRecog <= 4.5) { cor = '2a'; route = `DWI-FLAIR mismatch，症狀被發現 ${r1(p.tRecog)} 小時內（WAKE-UP 路徑）`; }
+    else if (p.penumbra && evtNo && ((onset === 'known' && t <= 9) || (onset === 'wake' && p.tSleepMid !== null && p.tSleepMid >= 0 && p.tSleepMid <= 9))) {
+      cor = '2a'; route = onset === 'known' ? `灌流影像有可挽救半影區、${r1(t)} 小時（4.5–9）且不適合 EVT（EXTEND 路徑）` : `醒來中風、距睡眠中點 ${r1(p.tSleepMid)} 小時 ≤9、有半影區且不適合 EVT`;
+    }
+    else if (p.penumbra && lvo && evtNo && t <= 24) { cor = '2b'; route = `LVO 有半影區、${r1(t)} 小時（4.5–24）且無法接受 EVT，由有經驗團隊決定`; }
+
+    if (!cor) {
+      R.push(['blk', `距最後正常 ${r1(t)} 小時，超過 4.5 小時標準時窗`]);
+      if (onset !== 'known' && t <= 24) R.push(['act', '醒來/時間不明：可考慮 MRI DWI-FLAIR（症狀被發現 4.5 小時內）或灌流影像（睡眠中點 9 小時內）']);
+      else if (t <= 9) R.push(['act', '4.5–9 小時：若不適合 EVT，可做自動化灌流影像評估半影區（2a）']);
+      else if (t <= 24 && lvo) R.push(['act', 'LVO 4.5–24 小時且無法 EVT：有半影區時可由專家考慮 IVT（2b）']);
+      return out('no', '', '超過時窗');
+    }
+    R.push(['ok', route]);
+    let status = cor === '2b' ? 'consider' : 'yes';
+
+    // 需先處理的項目
+    const pend = [];
+    if (p.anticoag === 'warfarin' && inr === null) pend.push('使用 warfarin：須等 INR（>1.7 不可給）');
+    if (p.anticoag === 'heparin' && aptt === null) pend.push('48 小時內用 heparin：須等 aPTT（>40 秒不可給）');
+    if (glu === null) R.push(['act', '給藥前必須測血糖（COR 1）']);
+    else if (glu < 50) pend.push(`血糖 ${glu}：先矯正低血糖；矯正後若明顯失能症狀仍存在，建議 IVT（COR 1）`);
+    else if (glu > 400) R.push(['wrn', `血糖 ${glu} >400：可能是類中風，先處理；症狀持續仍可 IVT（健保排除 >400）`]);
+    if (sbp === null || dbp === null) R.push(['act', '請輸入血壓']);
+    else if (sbp >= 185 || dbp >= 110) R.push(['act', `血壓 ${sbp}/${dbp}：須先降至 <185/110 才開始 IVT（COR 1）`]);
+    if (pend.length) { for (const x of pend) R.push(['act', x]); status = 'pending'; }
+
+    if (age !== null && age < 18) { R.push(['wrn', '未滿 18 歲：28 天–18 歲、4.5 小時內、明顯失能者可考慮 alteplase（2b），效益不確定；成人劑量規則不適用']); if (status === 'yes') status = 'consider'; }
+    if (p.anticoag === 'doac') { R.push(['wrn', 'DOAC <48 小時：安全性未知，需考慮最後服藥時間、腎功能、拮抗劑與 anti-Xa/凝血酶時間，且優先考慮可否直接 EVT']); if (status === 'yes') status = 'consider'; }
+    const rel = REL.filter(([id]) => p.rel && p.rel.includes(id));
+    if (num(p.preMrs) !== null && num(p.preMrs) >= 3) rel.push(['', `發病前已有失能（mRS ${p.preMrs}），效益不確定`]);
+    if (rel.length) { for (const [, txt] of rel) R.push(['wrn', '相對禁忌：' + txt]); if (status === 'yes') status = 'consider'; }
+    if (nihss === null) R.push(['act', '請輸入 NIHSS（≤5 時須判斷是否明顯失能）']);
+    if (validWeight(p.weight) === null) R.push(['act', '請輸入體重以計算劑量']);
+    const title = status === 'pending' ? '待處理後給藥' : (status === 'consider' ? '個別評估' : '建議 IVT');
+    return out(status, cor, title, route);
+  }
+
+  // 健保 ---------------------------------------------------------
+  function nhi(p) {
+    const F = [], t = p.tLkw, nihss = num(p.nihss), age = num(p.age), glu = num(p.glucose), sbp = num(p.sbp), dbp = num(p.dbp);
+    const inr = num(p.inr), plt = num(p.plt), aptt = num(p.aptt);
+    if ((p.onsetType || 'known') !== 'known') F.push('發作時間不明（健保須中風時間明確）');
+    if (t !== null && t > 4.5) F.push('超過發作 4.5 小時');
+    if (age !== null && age < 18) F.push('未滿 18 歲');
+    if (nihss !== null && nihss < 4) F.push('症狀輕微（NIHSS <4）');
+    if (nihss !== null && nihss > 25) F.push('嚴重中風（NIHSS >25）');
+    if (p.ct === 'hypodense') F.push('CT 低密度 >1/3 MCA 灌流區');
+    if (glu !== null && (glu < 50 || glu > 400)) F.push(`血糖 ${glu}（<50 或 >400）`);
+    if (sbp !== null && dbp !== null && (sbp > 185 || dbp > 110)) F.push(`血壓 ${sbp}/${dbp} >185/110（或需靜脈降壓才能達標）`);
+    if (plt !== null && plt < 100) F.push('血小板 <100,000');
+    if (p.anticoag === 'warfarin' && inr !== null && inr > 1.3) F.push(`使用 warfarin 且 INR ${inr} >1.3`);
+    if (p.anticoag === 'doac') F.push('正在使用口服抗凝血劑（含 DOAC）');
+    if (p.anticoag === 'heparin' && aptt !== null && aptt > 40) F.push('48 小時內用 heparin 且 aPTT 過高');
+    const map = { stroke3m: '3 個月內中風', priorIch: '曾顱內出血', tbi14: '最近頭部創傷', tbi3m: '3 個月內嚴重頭部創傷', surg10: '10 天內大手術', trauma14: '近期嚴重創傷',
+      nsurg14: '曾顱內/脊柱手術', nsurg3m: '曾顱內/脊柱手術', axial: '顱內腫瘤', vascMal: '動靜脈畸形/血管瘤', ie: '細菌性心內膜炎', pericarditis: '心包膜炎', activeBleed: '活動性內出血', artPuncture7: '10 天內不可壓迫部位血管穿刺' };
+    for (const id of [...(p.abs || []), ...(p.rel || [])]) if (map[id] && !F.includes(map[id])) F.push(map[id]);
+    for (const [id, txt] of NHI_EXTRA) if (p.nhi && p.nhi.includes(id)) F.push(txt);
+    return F;
+  }
+
+  function scenario(i, e) {
+    const cand = s => s === 'yes' || s === 'consider';
+    if (cand(i.status) && e.status === 'pending') return { key: 'b', title: '先給 IVT，同步完成 EVT 評估', desc: '符合 IVT 者不要為了 CTA/CTP 延誤給藥（COR 1）；給藥同時完成血管影像，若有 LVO 即啟動取栓。' };
+    if (i.status === 'pending' || e.status === 'pending') return { key: 'p', title: '評估進行中', desc: '尚有待完成的檢查或處置（見 → 項目）。可先處理的請立即進行，不要因等待而延誤。' };
+    if (cand(i.status) && cand(e.status)) return { key: 'a', title: '情境 A：Bridging（IVT + EVT 雙軌啟動）', desc: '立即給 IVT，<b>不要觀察反應</b>，同步啟動介入團隊（AHA 2026 4.7.1，COR 1）。' };
+    if (cand(i.status)) return { key: 'b', title: '情境 B：IVT Only', desc: '給予 IV 血栓溶解；目前不符合 EVT 條件。' };
+    if (cand(e.status)) return { key: 'c', title: '情境 C：EVT Only（直接取栓）', desc: '不給 IVT，直接安排動脈取栓；術前血壓維持 ≤185/110。' };
+    return { key: 'd', title: '情境 D：不符合急性再灌注治療', desc: '進入一般中風照護與次級預防（見「後續處置重點」）。' };
+  }
+
+  function after(p, i, e) {
+    const L = [], nihss = num(p.nihss);
+    const gaveIvt = i.status === 'yes' || i.status === 'consider';
+    const gaveEvt = e.status === 'yes' || e.status === 'consider';
+    if (gaveIvt) {
+      L.push('IVT 後 24 小時血壓 <180/105（COR 1）；輕中度中風不需降到 <140（3: No Benefit）');
+      L.push('神經學評估與血壓：給藥中及後 2 小時每 15 分鐘、之後 6 小時每 30 分鐘、再每小時至 24 小時');
+      L.push('出現劇烈頭痛、急性高血壓、噁心嘔吐或神經學惡化：停止 alteplase 輸注，緊急 CT');
+      L.push('24 小時後追蹤 CT/MRI 再開始抗血小板或抗凝血劑；IVT 後 24 小時內抗血小板效益不確定（2b）');
+      L.push('IVT 前後 90 分鐘內勿給 IV aspirin（3: Harm）；延後放置鼻胃管、尿管、動脈導管');
+    }
+    if (gaveEvt) {
+      L.push('EVT 前（未給 IVT）血壓 ≤185/110；術中及術後 24 小時 ≤180/105（2a）');
+      L.push('成功再通 (mTICI 2b–3) 後 72 小時內<b>不要</b>把收縮壓壓到 <140（3: Harm）');
+    }
+    if (!gaveIvt && !gaveEvt) {
+      L.push('48 小時內開始 aspirin（COR 1）');
+      if (nihss !== null && nihss <= 3 && !p.af) L.push('NIHSS ≤3 非心因性、未接受 IVT：24 小時內開始 clopidogrel（含負荷劑量）+ aspirin，共 21 天後改單一抗血小板（COR 1）');
+      else if (nihss !== null && nihss <= 5 && !p.af) L.push('NIHSS 4–5（24 小時內）或 ≤5（24–72 小時）且推測動脈粥狀硬化：DAPT 21 天後單一抗血小板合理（2a）');
+      if (num(p.sbp) !== null && num(p.sbp) < 220) L.push('未接受再灌注、血壓 <220/120 且無其他適應症：前 48–72 小時不需積極降壓');
+    }
+    if (p.af) L.push('AF：經挑選（如較輕症）病人早期開始口服抗凝血劑風險低且合理（2a，ELAN/TIMING/OPTIMAS）；不要再加抗血小板（無冠心病/近期支架時，3: Harm）');
+    L.push('若無吞嚥篩檢不可經口進食；監測血糖、體溫，入中風單位');
+    return L;
+  }
+
+  function decide(p) {
+    const e = evt(p);
+    const i = ivt(p, e);
+    return { ivt: i, evt: e, nhi: nhi(p), scenario: scenario(i, e), after: after(p, i, e) };
+  }
+
+  return { NIHSS, ABS, REL, NHI_EXTRA, TNK_BANDS, nihssTotal, alteplase, tenecteplase, evt, ivt, nhi, decide, num, r1 };
+})();
+if (typeof module !== 'undefined') module.exports = AIS;
+/*ENGINE-END*/
+
+// ---------- UI ----------
+const $ = id => document.getElementById(id);
+let agent = 'alt09';
+
+function hoursBetween(a, b) {
+  if (!a || !b) return null;
+  const d1 = new Date(a), d2 = new Date(b);
+  if (isNaN(d1) || isNaN(d2)) return null;
+  return (d2 - d1) / 3600000;
+}
+function localIso(d) { const x = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return x.toISOString().slice(0, 16); }
+function esc(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+
+function buildForm() {
+  const g = $('nihssGrid');
+  g.innerHTML = AIS.NIHSS.map(([id, label, opts]) =>
+    `<div class="form-group"><label class="f">${label}</label><select class="nihss-item" data-id="${id}">${opts.map(([v, t]) => `<option value="${v === 'UN' ? '' : v}">${v === 'UN' ? '' : v + ' - '}${t}</option>`).join('')}</select></div>`).join('');
+  const box = (list, cls, tag) => list.map(([id, t]) => `<label><input type="checkbox" class="${cls}" value="${id}"> <span>${t}<span class="tag ${tag[0]}">${tag[1]}</span></span></label>`).join('');
+  $('absList').innerHTML = box(AIS.ABS, 'abs', ['t-abs', '絕對']);
+  $('relList').innerHTML = box(AIS.REL, 'rel', ['t-rel', '相對']);
+  $('nhiList').innerHTML = '<div class="note">以下為健保 28 項排除條件中、未在上方列出者；其餘（時間、NIHSS、血糖、血壓、凝血、近期中風/手術等）由上方資料自動判讀。</div>' + box(AIS.NHI_EXTRA, 'nhiX', ['t-nhi', '健保']);
+}
+
+function read() {
+  const v = id => $(id).value;
+  const now = v('timeNow');
+  return {
+    onsetType: v('onsetType'),
+    tLkw: hoursBetween(v('timeLkw'), now),
+    tRecog: hoursBetween(v('timeRecog'), now),
+    tSleepMid: hoursBetween(v('timeSleepMid'), now),
+    age: v('age'), weight: v('weight'), preMrs: v('preMrs'), nihss: v('nihss'), disabling: $('disabling').checked,
+    sbp: v('sbp'), dbp: v('dbp'), glucose: v('glucose'), bpRefractory: $('bpRefractory').checked,
+    anticoag: v('anticoag'), plt: v('plt'), inr: v('inr'), aptt: v('aptt'), pt: v('pt'),
+    ct: v('ct'), aspects: v('aspects'), occl: v('occl'), pcAspects: v('pcAspects'), massEffect: $('massEffect').checked,
+    penumbra: $('penumbra').checked, dwiFlair: $('dwiFlair').checked, evtLimit: $('evtLimit').checked, af: $('af').checked,
+    abs: [...document.querySelectorAll('.abs:checked')].map(x => x.value),
+    rel: [...document.querySelectorAll('.rel:checked')].map(x => x.value),
+    nhi: [...document.querySelectorAll('.nhiX:checked')].map(x => x.value)
+  };
+}
+
+const BADGE = { yes: ['b-yes', '建議'], consider: ['b-consider', '個別評估'], no: ['b-no', '不建議'], pending: ['b-pending', '待完成'] };
+function renderTrack(prefix, r) {
+  $(prefix + 'Box').className = 'panel track s-' + r.status;
+  $(prefix + 'Badge').className = 'badge ' + BADGE[r.status][0];
+  $(prefix + 'Badge').innerHTML = esc(r.title) + (r.cor ? ` <span class="cor">COR ${esc(r.cor)}</span>` : '');
+  const cls = { blk: 'blk', wrn: 'wrn', act: 'act', ok: '' };
+  const icon = { blk: '✗ ', wrn: '⚠ ', act: '→ ', ok: '✓ ' };
+  $(prefix + 'List').innerHTML = r.reasons.map(([k, t]) => `<li class="${cls[k]}">${icon[k]}${esc(t)}</li>`).join('');
+}
+
+function renderDose(p) {
+  const body = $('doseBody');
+  document.querySelectorAll('#agentSeg button').forEach(b => b.classList.toggle('on', b.dataset.agent === agent));
+  if (agent === 'tnk') {
+    const d = AIS.tenecteplase(p.weight);
+    if (!d) { body.innerHTML = '<p class="act">請輸入 20–250 kg 的體重。</p>'; return; }
+    body.innerHTML = `<table>
+      <tr><td>體重 ${d.weight} kg → 劑量（10 kg 級距）</td><td>${d.dose} mg</td></tr>
+      <tr><td>抽取體積（5 mg/mL）</td><td>${d.ml} mL</td></tr>
+      <tr><td>給法</td><td>單次 IV push 5–10 秒</td></tr>
+      ${d.under50 ? `<tr><td>&lt;50 kg 且體重確實：1 kg 級距 0.25 mg/kg</td><td>${d.exact} mg（${d.exactMl} mL）</td></tr>` : ''}
+    </table>
+    <div class="note">0.25 mg/kg，上限 25 mg（AHA 2026 Table 7）。0.4 mg/kg 不建議（3: No Benefit）。不要為了量體重延誤給藥。台灣腦中風適應症與健保給付請依院內規定確認。</div>`;
+    return;
+  }
+  const d = AIS.alteplase(p.weight, agent === 'alt06' ? 0.6 : 0.9);
+  if (!d) { body.innerHTML = '<p class="act">請輸入 20–250 kg 的體重。</p>'; return; }
+  body.innerHTML = `<table>
+    <tr><td>總劑量（${d.perKg} mg/kg${d.capped ? `，已達上限 ${d.perKg === 0.9 ? 90 : 60} mg` : ''}）</td><td>${d.total} mg</td></tr>
+    <tr><td>IV bolus（${Math.round(d.bolusPct * 100)}%，1 分鐘）</td><td>${d.bolus} mg = ${d.bolus} mL</td></tr>
+    <tr><td>IV 輸注（其餘，60 分鐘）</td><td>${d.infusion} mg = ${d.infusion} mL</td></tr>
+    <tr><td>輸注速率</td><td>${d.rateMlH} mL/h</td></tr>
+  </table>
+  <div class="waste">⚠️ 使用 ${d.vials} 瓶 50 mg（泡成 1 mg/mL，共 ${d.drawn} mL）：請先抽出並丟棄 <b>${d.discard} mg（${d.discard} mL）</b>，再給 bolus 與輸注，避免過量。</div>
+  ${agent === 'alt06' ? '<div class="note">0.6 mg/kg（15% bolus、85% 一小時）為日本仿單 / ENCHANTED 低劑量；ENCHANTED 未證明不劣於標準劑量，AHA 2026 建議 0.9 mg/kg。若院內採用請註明理由。</div>' : '<div class="note">0.9 mg/kg，上限 90 mg，10% bolus、其餘 60 分鐘（AHA 2026 Table 7、台灣健保）。</div>'}`;
+}
+
+function renderRisk(p) {
+  const age = AIS.num(p.age);
+  let cha = 2; document.querySelectorAll('.cha-item:checked').forEach(c => cha += +c.dataset.pts);
+  let chaAge = 0;
+  if (age !== null) chaAge = age >= 75 ? 2 : (age >= 65 ? 1 : 0);
+  cha += chaAge;
+  $('cha-total').textContent = cha;
+  $('chaAgeNote').textContent = age === null ? '年齡：未輸入（請於上方輸入）' : `年齡 ${age} 歲 → A ${chaAge} 分`;
+  let has = 1; document.querySelectorAll('.has-item:checked').forEach(() => has++);
+  const hasAge = age !== null && age > 65 ? 1 : 0;
+  has += hasAge;
+  $('has-total').textContent = has;
+  $('hasAgeNote').textContent = age === null ? '年齡：未輸入（請於上方輸入）' : `年齡 ${age} 歲 → E ${hasAge} 分`;
+}
+
+let lastResult = null;
+function renderAll() {
+  const p = read();
+  // 顯示/隱藏條件欄位
+  $('wakeBox').classList.toggle('hidden', p.onsetType === 'known');
+  $('sleepMidGroup').classList.toggle('hidden', p.onsetType !== 'wake');
+  $('dwiFlairLbl').classList.toggle('hidden', p.onsetType === 'known');
+  $('pcAspectsGroup').classList.toggle('hidden', p.occl !== 'basilar');
+  const n = AIS.num(p.nihss);
+  $('disablingBox').classList.toggle('hidden', n !== null && n > 5);
+  ['weight', 'aspects', 'nihss', 'age', 'pcAspects'].forEach(id => $(id).classList.toggle('bad', $(id).value !== '' && !$(id).checkValidity()));
+
+  // 時間
+  const t = p.tLkw;
+  let tm = '距最後正常時間：—';
+  let bad = false;
+  if (t !== null) {
+    if (t < 0) { tm = '⚠️ 最後正常時間晚於評估時間，請確認'; bad = true; }
+    else { const h = Math.floor(t), m = Math.round((t - h) * 60); tm = `距最後正常時間：<b>${h} 小時 ${m} 分</b>（${AIS.r1(t)} h）` + (t <= 4.5 ? `，距 4.5 小時還有 ${Math.round((4.5 - t) * 60)} 分鐘` : ''); }
+  }
+  $('timeMsg').innerHTML = tm;
+  if (bad) p.tLkw = null;
+
+  const r = AIS.decide(p);
+  lastResult = { p, r };
+  const s = r.scenario;
+  $('scenarioBox').className = 'panel scenario-' + s.key;
+  $('scenarioTitle').textContent = s.title;
+  $('scenarioDesc').innerHTML = s.desc;
+  $('timerLine').innerHTML = t !== null && !bad ? `LKW +${AIS.r1(t)} h` : '';
+  renderTrack('ivt', r.ivt);
+  renderTrack('evt', r.evt);
+
+  const showDose = r.ivt.status !== 'no';
+  $('doseBox').classList.toggle('hidden', !showDose);
+  if (showDose) renderDose(p);
+
+  const nhiShow = r.ivt.status !== 'no';
+  $('nhiBox').classList.toggle('hidden', !nhiShow);
+  if (nhiShow) {
+    $('nhiOut').innerHTML = r.nhi.length
+      ? r.nhi.map(x => `<li class="wrn">⚠ ${esc(x)}</li>`).join('') + '<li>以上屬健保 rt-PA 排除條件：臨床仍可依指引決定，但可能不符健保給付，請與病人/家屬說明。</li>'
+      : '<li>✓ 依已輸入資料，未觸及健保排除條件（仍需完成 28 項逐項核對）。</li>';
+  }
+  $('nhiCount').textContent = document.querySelectorAll('.nhiX:checked').length + ' 項';
+  $('afterList').innerHTML = r.after.map(x => `<li>${x}</li>`).join('');
+  renderRisk(p);
+  $('mbarText').innerHTML = `<b>IVT</b> ${BADGE[r.ivt.status][1]} · <b>EVT</b> ${BADGE[r.evt.status][1]}`;
+}
+
+function summaryText() {
+  if (!lastResult) return '';
+  const { p, r } = lastResult;
+  const line = (k, v) => v === '' || v === null || v === undefined ? '' : `${k}: ${v}\n`;
+  let s = `【AIS 再灌注評估】${$('timeNow').value.replace('T', ' ')}\n`;
+  s += line('LKW', $('timeLkw').value.replace('T', ' ') + (p.tLkw !== null ? `（+${AIS.r1(p.tLkw)} h）` : ''));
+  s += line('年齡/體重', `${p.age || '?'} 歲 / ${p.weight || '?'} kg`);
+  s += line('NIHSS', p.nihss) + line('發病前 mRS', p.preMrs) + line('BP', p.sbp && p.dbp ? `${p.sbp}/${p.dbp}` : '') + line('血糖', p.glucose);
+  s += line('ASPECTS', p.aspects) + line('阻塞', $('occl').selectedOptions[0].text);
+  s += `\n${r.scenario.title}\n`;
+  s += `IVT：${r.ivt.title}${r.ivt.cor ? ' (COR ' + r.ivt.cor + ')' : ''}\n` + r.ivt.reasons.map(x => '  - ' + x[1]).join('\n') + '\n';
+  s += `EVT：${r.evt.title}${r.evt.cor ? ' (COR ' + r.evt.cor + ')' : ''}\n` + r.evt.reasons.map(x => '  - ' + x[1]).join('\n') + '\n';
+  if (r.ivt.status !== 'no') {
+    if (agent === 'tnk') { const d = AIS.tenecteplase(p.weight); if (d) s += `\nTenecteplase ${d.dose} mg（${d.ml} mL）IV push\n`; }
+    else { const d = AIS.alteplase(p.weight, agent === 'alt06' ? 0.6 : 0.9); if (d) s += `\nAlteplase ${d.perKg} mg/kg 共 ${d.total} mg：bolus ${d.bolus} mg/1 min，輸注 ${d.infusion} mg/60 min（${d.rateMlH} mL/h），抽棄 ${d.discard} mg\n`; }
+    if (r.nhi.length) s += '健保排除條件：' + r.nhi.join('；') + '\n';
+  }
+  return s;
+}
+
+function setNow(id) { $(id).value = localIso(new Date()); }
+
+function reset() {
+  document.querySelectorAll('input[type=number],input[type=datetime-local]').forEach(i => i.value = '');
+  document.querySelectorAll('input[type=checkbox]:not([disabled])').forEach(i => i.checked = false);
+  document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  setNow('timeNow');
+  agent = 'alt09';
+  renderAll();
+}
+
+function example() {
+  reset();
+  const now = new Date();
+  $('timeNow').value = localIso(now);
+  $('timeLkw').value = localIso(new Date(now.getTime() - 105 * 60000));
+  Object.entries({ age: 72, weight: 68, preMrs: '0', sbp: 178, dbp: 96, glucose: 132, nihss: 14, plt: 210, aspects: 8, occl: 'm1' })
+    .forEach(([k, v]) => $(k).value = v);
+  renderAll();
+}
+
+buildForm();
+document.addEventListener('input', e => {
+  if (e.target.classList.contains('nihss-item')) {
+    const vals = {}; document.querySelectorAll('.nihss-item').forEach(s => vals[s.dataset.id] = s.value);
+    const tot = AIS.nihssTotal(vals);
+    $('nihss-total').textContent = tot; $('nihss').value = tot;
+  }
+  renderAll();
+});
+document.addEventListener('change', renderAll);
+$('btnNow').onclick = () => { setNow('timeNow'); renderAll(); };
+$('btnReset').onclick = reset;
+$('btnExample').onclick = example;
+$('agentSeg').onclick = e => { const b = e.target.closest('button'); if (b) { agent = b.dataset.agent; renderAll(); } };
+$('mbarBtn').onclick = () => $('result').scrollIntoView({ behavior: 'smooth' });
+$('btnCopy').onclick = async () => {
+  const txt = summaryText();
+  try { await navigator.clipboard.writeText(txt); $('btnCopy').textContent = '已複製 ✓'; }
+  catch (err) { window.prompt('請手動複製：', txt); }
+  setTimeout(() => $('btnCopy').textContent = '複製評估摘要', 1500);
+};
+setNow('timeNow');
+renderAll();
 </script>
-
 </body>
 </html>
