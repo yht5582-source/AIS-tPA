@@ -348,12 +348,12 @@ li.blk{color:var(--bad)}li.wrn{color:#9a6400}li.act{color:#0b5394}
     <b>參考資料</b>
     <ol>
       <li>Prabhakaran S, Gonzalez NR, Zachrison KS, et al. 2026 Guideline for the Early Management of Patients With Acute Ischemic Stroke: A Guideline From the AHA/ASA. <i>Stroke</i>. 2026. doi:<a href="https://doi.org/10.1161/STR.0000000000000513" target="_blank" rel="noopener">10.1161/STR.0000000000000513</a>（4.3 血壓、4.6 IVT、Table 7 劑量、Table 8 禁忌、4.7 EVT、4.8 抗血小板、4.9 抗凝血）</li>
-      <li>健保 rt-PA 收案與排除條件（收案 3 項、排除 28 項；112.10.1 起放寬至發作 4.5 小時內）、機械取栓 112.11.1 起放寬至 24 小時內 — 依高雄長庚神經內科教學簡報整理，實際以健保署最新藥品給付規定與院內 SOP 為準。</li>
+      <li>衛福部中央健康保險署。藥品給付規定 第二節 心臟血管及腎臟藥物 2.1.2.2 rt-PA 用於急性缺血性腦中風（115.9.22 版；112/10/1 放寬至 4.5 小時）、附表二-B 申報表、附表二-C 急性缺血性腦中風之血栓溶解治療檢查表（112.09.22 版）。<a href="https://www.nhi.gov.tw/ch/cp-7593-ad2a9-3397-1.html" target="_blank" rel="noopener">健保署藥品給付規定</a>。機械取栓 112.11.1 起放寬至 24 小時內（支付標準 33143B）。</li>
       <li>NIH Stroke Scale（NINDS，公共領域）。CHA₂DS₂-VASc（Lip 2010）、HAS-BLED（Pisters 2010）。</li>
     </ol>
   </div>
-  <div class="disclaimer">⚠️ 本工具僅供醫療專業人員教育與決策輔助，不可取代臨床判斷。給藥前請依院內 SOP 由兩人雙重核對體重、劑量與禁忌症。Tenecteplase 之台灣核准適應症與健保給付請依院內規定確認。</div>
-  <div class="ver">v2.0 · 2026-10-23</div>
+  <div class="disclaimer">⚠️ 本工具僅供醫療專業人員教育與決策輔助，不可取代臨床判斷。給藥前請依院內 SOP 由兩人雙重核對體重、劑量與禁忌症。Tenecteplase 用於腦中風健保不給付（2.1.2.2 僅 rt-PA），台灣核准適應症請依院內規定確認。</div>
+  <div class="ver">v2.1 · 2026-10-23</div>
 </div>
 
 <div class="mbar" id="mbar"><span id="mbarText">—</span><button class="tbtn" type="button" id="mbarBtn">看結果</button></div>
@@ -417,17 +417,21 @@ const AIS = (() => {
     ['nsurg3m', '14 天–3 個月內顱內/脊髓手術'],
     ['cmb10', 'MRI 已知大量腦微出血（>10 顆）']
   ];
-  // 健保 rt-PA 排除條件中，AHA 未列為禁忌或需另外勾選者
+  // 健保藥品給付規定 2.1.2.2 附表二-C 排除條件中，AHA 未列為禁忌或需另外勾選者
   const NHI_EXTRA = [
+    ['ivBp', '需要積極靜脈降壓才能使血壓降至 185/110 以下'],
     ['seizure', '中風發作時併發癲癇'],
     ['strokeDm', '過去曾中風且合併糖尿病'],
+    ['cnsHx', '中樞神經系統損害病史（腫瘤、血管瘤、顱內或脊柱手術；不限時間）'],
     ['bleedDiathesis', '目前或 6 個月內有顯著出血障礙、易出血體質'],
-    ['cpr', '過久或創傷性 CPR（>2 分鐘）、分娩'],
+    ['cpr', '過久或創傷性 CPR（>2 分鐘）、分娩、10 天內無法壓制部位血管穿刺（如鎖骨下或頸靜脈）'],
     ['liver', '嚴重肝病（肝衰竭、肝硬化、門脈高壓/食道靜脈曲張、急性肝炎）'],
     ['retinopathy', '出血性視網膜病變或其他出血性眼疾'],
     ['pancreatitis', '急性胰臟炎'],
     ['ulcer3m', '3 個月內胃腸道潰瘍'],
-    ['bleedTumor', '易出血之腫瘤、動脈瘤或動靜脈畸形'],
+    ['aneurysm', '動脈瘤、靜/動脈畸形'],
+    ['bleedTumor', '易出血之腫瘤'],
+    ['allergy', '對 alteplase 主成分或賦形劑過敏'],
     ['otherRisk', '其他增加出血風險狀況（如透析、嚴重心衰竭、身體極度衰弱）']
   ];
 
@@ -597,7 +601,10 @@ const AIS = (() => {
     if (sbp !== null && dbp !== null && (sbp > 185 || dbp > 110)) F.push(`血壓 ${sbp}/${dbp} >185/110（或需靜脈降壓才能達標）`);
     if (plt !== null && plt < 100) F.push('血小板 <100,000');
     if (p.anticoag === 'warfarin' && inr !== null && inr > 1.3) F.push(`使用 warfarin 且 INR ${inr} >1.3`);
-    if (p.anticoag === 'doac') F.push('正在使用口服抗凝血劑（含 DOAC）');
+    if (p.anticoag === 'warfarin' && inr === null) F.push('使用 warfarin：須確認 INR ≤1.3');
+    if (p.anticoag === 'doac') F.push('正接受口服抗凝血劑：條文例示 warfarin（INR >1.3），DOAC 未明列，屬口服抗凝血劑，審查可能不給付');
+    if (p.bpRefractory) F.push('嚴重且未被控制的動脈高血壓');
+    if (p.agent === 'tnk') F.push('Tenecteplase：健保 2.1.2.2 腦中風僅給付 rt-PA (Actilyse)；Metalyse 給付限 2.1.2.1 非腦血管血栓');
     if (p.anticoag === 'heparin' && aptt !== null && aptt > 40) F.push('48 小時內用 heparin 且 aPTT 過高');
     const map = { stroke3m: '3 個月內中風', priorIch: '曾顱內出血', tbi14: '最近頭部創傷', tbi3m: '3 個月內嚴重頭部創傷', surg10: '10 天內大手術', trauma14: '近期嚴重創傷',
       nsurg14: '曾顱內/脊柱手術', nsurg3m: '曾顱內/脊柱手術', axial: '顱內腫瘤', vascMal: '動靜脈畸形/血管瘤', ie: '細菌性心內膜炎', pericarditis: '心包膜炎', activeBleed: '活動性內出血', artPuncture7: '10 天內不可壓迫部位血管穿刺' };
@@ -673,7 +680,7 @@ function buildForm() {
   const box = (list, cls, tag) => list.map(([id, t]) => `<label><input type="checkbox" class="${cls}" value="${id}"> <span>${t}<span class="tag ${tag[0]}">${tag[1]}</span></span></label>`).join('');
   $('absList').innerHTML = box(AIS.ABS, 'abs', ['t-abs', '絕對']);
   $('relList').innerHTML = box(AIS.REL, 'rel', ['t-rel', '相對']);
-  $('nhiList').innerHTML = '<div class="note">以下為健保 28 項排除條件中、未在上方列出者；其餘（時間、NIHSS、血糖、血壓、凝血、近期中風/手術等）由上方資料自動判讀。</div>' + box(AIS.NHI_EXTRA, 'nhiX', ['t-nhi', '健保']);
+  $('nhiList').innerHTML = '<div class="note">依健保藥品給付規定 2.1.2.2 附表二-C（112.09.22 版）28 項排除條件中、未在上方列出者；其餘（時間、NIHSS、血糖、血壓、凝血、近期中風/手術等）由上方資料自動判讀。</div>' + box(AIS.NHI_EXTRA, 'nhiX', ['t-nhi', '健保']);
 }
 
 function read() {
@@ -717,7 +724,7 @@ function renderDose(p) {
       <tr><td>給法</td><td>單次 IV push 5–10 秒</td></tr>
       ${d.under50 ? `<tr><td>&lt;50 kg 且體重確實：1 kg 級距 0.25 mg/kg</td><td>${d.exact} mg（${d.exactMl} mL）</td></tr>` : ''}
     </table>
-    <div class="note">0.25 mg/kg，上限 25 mg（AHA 2026 Table 7）。0.4 mg/kg 不建議（3: No Benefit）。不要為了量體重延誤給藥。台灣腦中風適應症與健保給付請依院內規定確認。</div>`;
+    <div class="note">0.25 mg/kg，上限 25 mg（AHA 2026 Table 7）。0.4 mg/kg 不建議（3: No Benefit）。不要為了量體重延誤給藥。<b>健保不給付</b>：藥品給付規定 2.1.2.2 急性缺血性腦中風僅給付 rt-PA (Actilyse)。台灣腦中風適應症請依院內規定確認。</div>`;
     return;
   }
   const d = AIS.alteplase(p.weight, agent === 'alt06' ? 0.6 : 0.9);
@@ -769,6 +776,7 @@ function renderAll() {
   }
   $('timeMsg').innerHTML = tm;
   if (bad) p.tLkw = null;
+  p.agent = agent;
 
   const r = AIS.decide(p);
   lastResult = { p, r };
@@ -788,8 +796,9 @@ function renderAll() {
   $('nhiBox').classList.toggle('hidden', !nhiShow);
   if (nhiShow) {
     $('nhiOut').innerHTML = r.nhi.length
-      ? r.nhi.map(x => `<li class="wrn">⚠ ${esc(x)}</li>`).join('') + '<li>以上屬健保 rt-PA 排除條件：臨床仍可依指引決定，但可能不符健保給付，請與病人/家屬說明。</li>'
-      : '<li>✓ 依已輸入資料，未觸及健保排除條件（仍需完成 28 項逐項核對）。</li>';
+      ? r.nhi.map(x => `<li class="wrn">⚠ ${esc(x)}</li>`).join('') + '<li>以上不符健保給付規定：臨床仍可依指引決定，但可能不予給付，請與病人/家屬說明。</li>'
+      : '<li>✓ 依已輸入資料，未觸及健保排除條件（仍需完成附表二-C 逐項核對）。</li>';
+    $('nhiOut').innerHTML += '<li>給付前提：醫院具神經內/外科專科醫師及加護病房；給藥前完成 CT/MRI、NIHSS、心電圖、胸部 X 光、PT、aPTT、肝腎功能、血糖。申報填附表二-B，附給藥前、24 與 36 小時後 CT/MRI 及 NIHSS。</li>';
   }
   $('nhiCount').textContent = document.querySelectorAll('.nhiX:checked').length + ' 項';
   $('afterList').innerHTML = r.after.map(x => `<li>${x}</li>`).join('');
@@ -856,7 +865,14 @@ $('mbarBtn').onclick = () => $('result').scrollIntoView({ behavior: 'smooth' });
 $('btnCopy').onclick = async () => {
   const txt = summaryText();
   try { await navigator.clipboard.writeText(txt); $('btnCopy').textContent = '已複製 ✓'; }
-  catch (err) { window.prompt('請手動複製：', txt); }
+  catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    const okCopy = (() => { try { return document.execCommand('copy'); } catch (e) { return false; } })();
+    ta.remove();
+    $('btnCopy').textContent = okCopy ? '已複製 ✓' : '無法複製';
+  }
   setTimeout(() => $('btnCopy').textContent = '複製評估摘要', 1500);
 };
 setNow('timeNow');

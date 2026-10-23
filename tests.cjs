@@ -128,6 +128,11 @@ ok(D({ glucose: '420' }).nhi.some(x => /400/.test(x)), '健保 血糖 >400');
 ok(D({ onsetType: 'wake' }).nhi.some(x => /不明/.test(x)), '健保 時間不明');
 ok(D({ nhi: ['seizure'] }).nhi.some(x => /癲癇/.test(x)), '健保 癲癇');
 eq(D({}).nhi.length, 0, '標準病例無健保排除');
+ok(D({ agent: 'tnk' }).nhi.some(x => /Tenecteplase/.test(x)), '健保 TNK 不給付');
+ok(D({ anticoag: 'warfarin' }).nhi.some(x => /INR ≤1\.3/.test(x)), '健保 warfarin 未驗 INR');
+ok(D({ nhi: ['ivBp'] }).nhi.some(x => /靜脈降壓/.test(x)), '健保 需靜脈降壓');
+ok(D({ bpRefractory: true }).nhi.some(x => /未被控制/.test(x)), '健保 未控制高血壓');
+eq(AIS.NHI_EXTRA.length, 14, '健保補充勾選 14 項');
 
 // ---- 後續 ----
 ok(D({ tLkw: 30, occl: 'none', nihss: '2' }).after.some(x => /clopidogrel/.test(x)), '輕症未 IVT → DAPT');
