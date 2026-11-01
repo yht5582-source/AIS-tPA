@@ -139,5 +139,89 @@ ok(D({ tLkw: 30, occl: 'none', nihss: '2' }).after.some(x => /clopidogrel/.test(
 ok(!D({ tLkw: 30, occl: 'none', nihss: '2', af: true }).after.some(x => /clopidogrel/.test(x)), 'AF → 不建議 DAPT');
 ok(D({}).after.some(x => /180\/105/.test(x)), 'IVT 後血壓目標');
 
+// ---- 示範病例：全部由引擎算出，expect 與變化題都要吻合 ----
+const block = (name, ret) => new Function(src.slice(src.indexOf(`/*${name}-START*/`), src.indexOf(`/*${name}-END*/`)) + `;return ${ret};`)();
+const { CASE_BASE, AIS_CASES } = block('CASES', '{ CASE_BASE, AIS_CASES }');
+const AIS_QUIZ = block('QUIZ', 'AIS_QUIZ');
+const AIS_MAP = block('MAP', 'AIS_MAP');
+function checkCase(name, p, x) {
+  const r = AIS.decide(p);
+  eq(r.scenario.key, x.scenario, name + ' 情境');
+  eq(r.ivt.status, x.ivt, name + ' IVT');
+  eq(r.evt.status, x.evt, name + ' EVT');
+  if (x.ivtCor) eq(r.ivt.cor, x.ivtCor, name + ' IVT COR');
+  if (x.evtCor) eq(r.evt.cor, x.evtCor, name + ' EVT COR');
+  if (x.nhi) ok(r.nhi.some(t => x.nhi.test(t)), name + ' 健保 ' + x.nhi);
+  if (x.after) ok(r.after.some(t => x.after.test(t)), name + ' 後續 ' + x.after);
+  const a = AIS.alteplase(p.weight, 0.9);
+  if (x.total) eq(a.total, x.total, name + ' alteplase 總量');
+  if (x.bolus) eq(a.bolus, x.bolus, name + ' bolus');
+  if (x.infusion) eq(a.infusion, x.infusion, name + ' 輸注');
+  if (x.tnk) eq(AIS.tenecteplase(p.weight).dose, x.tnk, name + ' TNK');
+}
+eq(AIS_CASES.length, 6, '示範病例 6 例');
+for (const c of AIS_CASES) {
+  const p = { ...CASE_BASE, ...c.p };
+  checkCase(c.id, p, c.expect);
+  checkCase(c.id + ' 變化題', { ...p, ...c.twist.p }, c.twist.expect);
+  ok(c.points.some(x => x[0] === 'tw'), c.id + ' 有台灣規範重點');
+  ok(c.points.some(x => x[0] === 'intl'), c.id + ' 有國際指引重點');
+  const nums = c.points.map(x => x[1]).join('');
+  if (c.expect.total && /alteplase \d/.test(nums)) ok(nums.includes(`alteplase ${c.expect.total} mg`), c.id + ' 重點劑量與引擎一致');
+}
+
+// ---- 考題：結構與答案分布 ----
+eq(AIS_QUIZ.length, 20, '考題 20 題');
+eq(AIS_QUIZ.filter(q => q.level === 'basic').length, 10, '基礎 10 題');
+eq(AIS_QUIZ.filter(q => q.level === 'adv').length, 10, '高階 10 題');
+eq(new Set(AIS_QUIZ.map(q => q.id)).size, 20, '題號不重複');
+[0, 1, 2, 3].forEach(i => eq(AIS_QUIZ.filter(q => q.ans === i).length, 5, '答案 ' + 'ABCD'[i] + ' 5 題'));
+for (const q of AIS_QUIZ) {
+  eq(q.opts.length, 4, q.id + ' 四個選項');
+  eq(new Set(q.opts).size, 4, q.id + ' 選項不重複');
+  ok(q.ans >= 0 && q.ans < 4 && q.why && q.src, q.id + ' 有答案、解析、出處');
+}
+const longest = AIS_QUIZ.filter(q => q.opts[q.ans].length === Math.max(...q.opts.map(o => o.length))).length;
+ok(longest <= 7, `正解為最長選項不應過多（目前 ${longest}）`);
+
+// ---- 考題：答案與引擎核對 ----
+const Q = id => AIS_QUIZ.find(q => q.id === id), A = id => Q(id).opts[Q(id).ans];
+const a80 = AIS.alteplase(80, 0.9);
+ok(A('b2').includes(`總量 ${a80.total} mg`) && A('b2').includes(`bolus ${a80.bolus} mg`) && A('b2').includes(`輸注 ${a80.infusion} mg`), 'b2 alteplase 80 kg');
+const t75 = AIS.tenecteplase(75);
+ok(A('b3').includes(`${t75.dose} mg（${t75.ml} mL）`), 'b3 TNK 75 kg');
+eq(D({ tLkw: 1.5, glucose: '110', occl: 'none' }).ivt.status, 'yes', 'b5 血糖矯正後可 IVT');
+eq(D({ nihss: '2', occl: 'none' }).ivt.cor, '3: No Benefit', 'b6 非失能輕症');
+ok(D({ nihss: '2', occl: 'none', tLkw: 2 }).after.some(x => /clopidogrel/.test(x)), 'b6 DAPT');
+eq(D({}).scenario.key, 'a', 'b7 Bridging');
+ok(D({ agent: 'tnk' }).nhi.some(x => /僅給付 rt-PA/.test(x)), 'b10 健保僅 rt-PA');
+const m14 = o => D({ tLkw: 14, nihss: '18', occl: 'm1', ...o }).evt;
+eq(m14({ age: '75', aspects: '4' }).cor, '1', 'a1 正解 COR 1');
+eq(m14({ age: '84', aspects: '4' }).status, 'no', 'a1 84 歲不符');
+eq(m14({ age: '70', aspects: '2' }).status, 'no', 'a1 ASPECTS 2 不符');
+eq(m14({ age: '70', aspects: '4', massEffect: true }).status, 'no', 'a1 占位效應不符');
+eq(D({ tLkw: 3, nihss: '20', aspects: '1' }).evt.cor, '2a', 'a2 ASPECTS 1');
+eq(D({ tLkw: 4, nihss: '14', aspects: '7', preMrs: '3' }).evt.cor, '2b', 'a3 4 小時 mRS 3');
+eq(D({ tLkw: 8, nihss: '14', aspects: '7', preMrs: '3' }).evt.status, 'no', 'a3 8 小時 mRS 3');
+const ba = n => D({ tLkw: 10, occl: 'basilar', pcAspects: '8', nihss: n }).evt.cor;
+eq(ba('12'), '1', 'a4 基底 NIHSS 12'); eq(ba('8'), '2b', 'a4 基底 NIHSS 8');
+const a5 = D({ tLkw: 7, nihss: '15', aspects: '7', penumbra: true });
+eq(a5.scenario.key, 'c', 'a5 直接 EVT'); eq(a5.evt.cor, '1', 'a5 EVT COR 1'); eq(a5.ivt.status, 'no', 'a5 不走延長 IVT');
+const a6 = D({ tLkw: 3, anticoag: 'warfarin', inr: '1.5', occl: 'none' });
+eq(a6.ivt.cor, '1', 'a6 指引可給'); ok(a6.nhi.some(x => />1\.3/.test(x)), 'a6 健保排除');
+ok(D({ tLkw: 2 }).after.some(x => /<140/.test(x)), 'a9 不壓到 <140');
+ok(D({ tLkw: 30, occl: 'none', nihss: '4' }).after.some(x => /24–72/.test(x)), 'a10 NIHSS 4 延伸 DAPT');
+
+// ---- 心智圖：數字與引擎門檻一致 ----
+const mapText = JSON.stringify(AIS_MAP);
+eq(AIS_MAP.dx.length + AIS_MAP.tx.length, 15, '心智圖 15 分支');
+ok(AIS_MAP.tx.find(b => b.t === '台灣健保').l.every(x => x.tw), '健保分支全部標台灣');
+ok([...AIS_MAP.dx, ...AIS_MAP.tx].filter(b => b.t !== '台灣健保').every(b => b.l.every(x => !x.tw)), '其餘分支不標台灣');
+AIS.TNK_BANDS.forEach(([, mg]) => ok(mapText.includes(String(mg)), 'TNK 級距 ' + mg));
+for (const k of ['INR >1.7', 'aPTT >40', 'PT >15', '血小板 <100k', 'INR >1.3', '<4 或 >25', '<185/110', '<180/105', '上限 90 mg', '上限 25 mg']) ok(mapText.includes(k), '心智圖含 ' + k);
+eq(D({ plt: '99' }).ivt.status, 'no', '心智圖 血小板 <100');
+eq(D({ inr: '1.71' }).ivt.status, 'no', '心智圖 INR >1.7');
+eq(D({ inr: '1.7' }).ivt.status, 'yes', '心智圖 INR 1.7 可');
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

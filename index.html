@@ -94,6 +94,74 @@ li.blk{color:var(--bad)}li.wrn{color:#9a6400}li.act{color:#0b5394}
   .container{border-radius:0}
 }
 @media print{.toolbar,.mbar,button{display:none!important}.layout{grid-template-columns:1fr}.result-col{position:static}body{background:#fff}}
+/* 分頁 */
+details:not([open])>summary::after{content:"▾"}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin:0 0 14px;border-bottom:2px solid var(--line)}
+.tab{padding:8px 16px;font-weight:600;color:var(--blue-d);text-decoration:none;border-radius:6px 6px 0 0;margin-bottom:-2px;border:2px solid transparent;font-size:.95em}
+.tab:hover{background:var(--soft)}
+.tab.on{background:#fff;border-color:var(--line);border-bottom-color:#fff;color:var(--ink)}
+body.notool .mbar{display:none!important}
+.intro{font-size:.9em;color:#5d6d7a;margin:0 0 12px}
+.src-tag{display:inline-block;font-size:.74em;font-weight:700;padding:0 7px;border-radius:9px;white-space:nowrap;vertical-align:1px}
+.src-tag.intl{background:#d9ebf8;color:#14527f}.src-tag.tw{background:#d9f2e3;color:#145a32}
+/* 病例 */
+.case-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.case-stem{margin:6px 0 10px}
+.case-ask{background:var(--soft);border-radius:6px;padding:8px 12px;margin:0 0 12px}
+.case-ans{margin-top:12px}
+.case-ans h3{font-size:1em;color:var(--ink);margin:14px 0 6px}
+.case-scn{padding:9px 14px;margin-bottom:10px}
+.case-tracks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.case-tracks .panel{margin-bottom:10px;background:#fff}
+.case-tracks h3{margin:0}
+.case-points{margin:4px 0 8px;padding-left:18px;font-size:.93em}
+.case-points li{margin-bottom:5px}
+.case-ans .dose td:last-child{white-space:normal}
+.case-twist{background:#f6f9fb;border:1px dashed #b8cfdd;border-radius:8px;padding:6px 14px 4px;margin-top:12px}
+.case-twist p{font-size:.92em;margin:0 0 8px}
+details.sub-d{background:#f6f9fb;padding:6px 12px;margin:8px 0}
+details.sub-d summary{font-size:.9em}
+.case-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+/* 考題 */
+.quiz-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:0;background:#fff;padding:8px 0;z-index:5;border-bottom:1px solid #e1e8ed;margin-bottom:12px}
+.quiz-filter{display:flex;gap:6px;flex-wrap:wrap}
+#quizScore{font-weight:600;font-size:.92em;margin-left:auto}
+.q-card{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+.q-meta{font-size:.82em;color:#6b7c8a}
+.q-lv{font-weight:700;border-radius:9px;padding:0 7px}
+.q-lv.basic{background:var(--info-bg);color:var(--info)}.q-lv.adv{background:var(--warn-bg);color:var(--warn)}
+.q-stem{margin:6px 0 10px;font-weight:600}
+.q-opts{display:grid;gap:6px}
+.q-opt{text-align:left;background:#f9fbfc;border:1px solid #ccd8e0;border-radius:6px;padding:8px 10px;font:inherit;font-size:.94em;color:inherit;cursor:pointer}
+.q-opt:hover:not(:disabled){background:var(--soft)}
+.q-opt:disabled{cursor:default;color:inherit}
+.q-opt.right{background:var(--ok-bg);border-color:#8fcfa0}
+.q-opt.wrong{background:var(--bad-bg);border-color:#e5a3aa}
+.q-why{margin-top:8px;padding:8px 12px;border-radius:6px;font-size:.92em;background:#f6f9fb;border-left:4px solid #b8cfdd}
+.q-why.ok{border-left-color:#28a745}.q-why.no{border-left-color:#dc3545}
+.q-src{font-size:.85em;color:#6b7c8a;margin-top:3px}
+/* 心智圖 */
+.mm-bar{display:flex;gap:8px;margin-bottom:14px}
+.mm{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 112px minmax(0,1fr);column-gap:34px;align-items:start}
+#mmLinks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#mmLinks path{fill:none;stroke-width:2.5}#mmLinks path.dx{stroke:#8fbfe0}#mmLinks path.tx{stroke:#7dbb98}
+.mm-side{position:relative;min-width:0}
+.mm-center{position:relative;align-self:center;background:var(--ink);color:#fff;border-radius:14px;padding:16px 8px;text-align:center;font-weight:800;line-height:1.45}
+.mm-center small{display:block;color:#cfe1ee;font-weight:400;margin-top:4px}
+.mm-col{margin:0 0 10px;font-size:1.05em}.mm-col.dx{color:var(--blue-d)}.mm-col.tx{color:#1e7d5a}
+.mm-branch{margin-bottom:12px}
+.mm-head{display:block;width:100%;border:0;border-radius:9px;color:#fff;font:inherit;font-weight:700;text-align:left;padding:9px 12px;line-height:1.4;cursor:pointer;position:relative}
+.mm-head[aria-expanded=true]{border-radius:9px 9px 0 0}
+.mm-branch.dx .mm-head{background:var(--blue-d)}.mm-branch.tx .mm-head{background:#1e7d5a}
+.mm-head::after{content:"▾";position:absolute;right:12px;top:10px}.mm-head[aria-expanded=false]::after{content:"▸"}
+.mm-t{display:block;padding-right:16px}.mm-s{display:block;font-weight:400;font-size:.78em;opacity:.92}
+.mm-leaves{list-style:none;margin:0;padding:8px 10px;font-size:.88em;line-height:1.55;border:1px solid var(--line);border-top:0;border-radius:0 0 9px 9px;background:#fff}
+.mm-leaves[hidden]{display:none}
+.mm-leaves li{padding:4px 0;border-bottom:1px dashed #e4ebf2}.mm-leaves li:last-child{border-bottom:0}
+.mm-leaves b{color:var(--ink)}
+@media (max-width:480px){.tab{padding:8px 9px;font-size:.88em}.tabs{flex-wrap:nowrap}}
+@media (max-width:760px){.mm{grid-template-columns:minmax(0,1fr);row-gap:14px}#mmLinks{display:none}.mm-center{order:-1;padding:12px}.mm-center br{display:none}.mm-center small{display:inline;margin-left:8px}#quizScore{margin-left:0}}
+@media print{.tabs,.quiz-bar,.case-actions{display:none!important}}
 </style>
 </head>
 <body>
@@ -101,6 +169,14 @@ li.blk{color:var(--bad)}li.wrn{color:#9a6400}li.act{color:#0b5394}
 <div class="container">
   <h1>急性缺血性腦中風 (AIS) 決策支援</h1>
   <p class="sub">IV 血栓溶解 (alteplase / tenecteplase) 與動脈取栓 (EVT) 雙軌評估 · 依 2026 AHA/ASA 指引 · 附台灣健保 rt-PA 條件檢核</p>
+  <nav class="tabs" role="tablist" aria-label="頁面分頁">
+    <a class="tab on" id="tab-tool" role="tab" href="#tool">決策工具</a>
+    <a class="tab" id="tab-cases" role="tab" href="#cases">示範病例 6</a>
+    <a class="tab" id="tab-quiz" role="tab" href="#quiz">考題 20</a>
+    <a class="tab" id="tab-map" role="tab" href="#map">心智圖</a>
+  </nav>
+
+  <section id="view-tool">
   <div class="toolbar">
     <button class="tbtn" id="btnExample" type="button">載入示例</button>
     <button class="tbtn" id="btnReset" type="button">清除重填</button>
@@ -343,17 +419,43 @@ li.blk{color:var(--bad)}li.wrn{color:#9a6400}li.act{color:#0b5394}
     </div>
   </div>
   </div>
+  </section>
+
+  <section id="view-cases" class="hidden">
+    <p class="intro">虛構教學病例。判斷結果由本頁決策引擎即時算出，與「決策工具」分頁一致；可一鍵帶入工具自行改數值。</p>
+    <div class="case-nav" id="caseNav"></div>
+    <div id="caseBody"></div>
+  </section>
+
+  <section id="view-quiz" class="hidden">
+    <div class="quiz-bar">
+      <div class="quiz-filter" id="quizFilter">
+        <button type="button" class="tbtn" data-f="all">全部 20</button>
+        <button type="button" class="tbtn" data-f="basic">基礎 10</button>
+        <button type="button" class="tbtn" data-f="adv">高階 10</button>
+      </div>
+      <button type="button" class="tbtn" id="quizReset">重新作答</button>
+      <span id="quizScore"></span>
+    </div>
+    <div id="quizList"></div>
+  </section>
+
+  <section id="view-map" class="hidden">
+    <p class="intro">點分支展開。未標示者為 AHA/ASA 2026 指引；<span class="src-tag tw">台灣健保</span>為健保給付規定。</p>
+    <div class="mm-bar"><button type="button" class="tbtn" id="mmOpen">全部展開</button><button type="button" class="tbtn" id="mmClose">全部收合</button></div>
+    <div class="mm" id="mmWrap"><svg id="mmLinks" aria-hidden="true"></svg><div class="mm-side" id="mmDx"></div><div class="mm-center" id="mmCenter">急性缺血性<br>腦中風<small>時間就是腦<br>IVT × EVT</small></div><div class="mm-side" id="mmTx"></div></div>
+  </section>
 
   <div class="refs">
     <b>參考資料</b>
     <ol>
-      <li>Prabhakaran S, Gonzalez NR, Zachrison KS, et al. 2026 Guideline for the Early Management of Patients With Acute Ischemic Stroke: A Guideline From the AHA/ASA. <i>Stroke</i>. 2026. doi:<a href="https://doi.org/10.1161/STR.0000000000000513" target="_blank" rel="noopener">10.1161/STR.0000000000000513</a>（4.3 血壓、4.6 IVT、Table 7 劑量、Table 8 禁忌、4.7 EVT、4.8 抗血小板、4.9 抗凝血）</li>
+      <li>Prabhakaran S, Gonzalez NR, Zachrison KS, et al. 2026 Guideline for the Early Management of Patients With Acute Ischemic Stroke: A Guideline From the AHA/ASA. <i>Stroke</i>. 2026. doi:<a href="https://doi.org/10.1161/STR.0000000000000513" target="_blank" rel="noopener">10.1161/STR.0000000000000513</a>（4.3 血壓、4.6 IVT、Table 5 出血處置、Table 6 血管性水腫、Table 7 劑量、Table 8 禁忌、4.7 EVT、4.8 抗血小板、4.9 抗凝血）</li>
       <li>衛福部中央健康保險署。藥品給付規定 第二節 心臟血管及腎臟藥物 2.1.2.2 rt-PA 用於急性缺血性腦中風（115.9.22 版；112/10/1 放寬至 4.5 小時）、附表二-B 申報表、附表二-C 急性缺血性腦中風之血栓溶解治療檢查表（112.09.22 版）。<a href="https://www.nhi.gov.tw/ch/cp-7593-ad2a9-3397-1.html" target="_blank" rel="noopener">健保署藥品給付規定</a>。機械取栓 112.11.1 起放寬至 24 小時內（支付標準 33143B）。</li>
       <li>NIH Stroke Scale（NINDS，公共領域）。CHA₂DS₂-VASc（Lip 2010）、HAS-BLED（Pisters 2010）。</li>
     </ol>
   </div>
   <div class="disclaimer">⚠️ 本工具僅供醫療專業人員教育與決策輔助，不可取代臨床判斷。給藥前請依院內 SOP 由兩人雙重核對體重、劑量與禁忌症。Tenecteplase 用於腦中風健保不給付（2.1.2.2 僅 rt-PA），台灣核准適應症請依院內規定確認。</div>
-  <div class="ver">v2.1 · 2026-10-23</div>
+  <div class="ver">v2.2 · 2026-11-01</div>
 </div>
 
 <div class="mbar" id="mbar"><span id="mbarText">—</span><button class="tbtn" type="button" id="mbarBtn">看結果</button></div>
@@ -632,7 +734,7 @@ const AIS = (() => {
       L.push('神經學評估與血壓：給藥中及後 2 小時每 15 分鐘、之後 6 小時每 30 分鐘、再每小時至 24 小時');
       L.push('出現劇烈頭痛、急性高血壓、噁心嘔吐或神經學惡化：停止 alteplase 輸注，緊急 CT');
       L.push('24 小時後追蹤 CT/MRI 再開始抗血小板或抗凝血劑；IVT 後 24 小時內抗血小板效益不確定（2b）');
-      L.push('IVT 前後 90 分鐘內勿給 IV aspirin（3: Harm）；延後放置鼻胃管、尿管、動脈導管');
+      L.push('IVT 同時或開始後 90 分鐘內勿給 IV aspirin（3: Harm）；延後放置鼻胃管、尿管、動脈導管');
     }
     if (gaveEvt) {
       L.push('EVT 前（未給 IVT）血壓 ≤185/110；術中及術後 24 小時 ≤180/105（2a）');
@@ -659,6 +761,251 @@ const AIS = (() => {
 })();
 if (typeof module !== 'undefined') module.exports = AIS;
 /*ENGINE-END*/
+
+/*CASES-START*/
+// 虛構教學病例。結果一律由 AIS.decide() 即時算出；expect 由 tests.cjs 比對，本文不手寫等級結論以外的判定。
+const CASE_BASE = { onsetType: 'known', tLkw: 2, tRecog: null, tSleepMid: null, age: '70', weight: '70', preMrs: '0', nihss: '10', disabling: false,
+  sbp: '150', dbp: '85', glucose: '120', bpRefractory: false, anticoag: 'none', plt: '200', inr: '', aptt: '', pt: '',
+  ct: 'clear', aspects: '9', occl: 'none', pcAspects: '', massEffect: false, penumbra: false, dwiFlair: false, evtLimit: false, af: false, abs: [], rel: [], nhi: [] };
+const AIS_CASES = [
+ { id: 'c1', tag: 'Bridging', title: '左 M1 阻塞，血壓 192/104',
+   stem: '68 歲男性，目擊下突然右側無力、說不出話，到院時距最後正常 1.5 小時。病前完全獨立（mRS 0）。體重 72 kg，血壓 192/104，血糖 146，血小板 220，未用抗凝血劑。NIHSS 16。CT 無出血，ASPECTS 8；CTA 左 M1 阻塞。',
+   ask: '給藥前要先處理什麼？要先看 IVT 的反應，再決定是否取栓嗎？',
+   p: { tLkw: 1.5, age: '68', weight: '72', sbp: '192', dbp: '104', glucose: '146', plt: '220', nihss: '16', aspects: '8', occl: 'm1' },
+   expect: { scenario: 'a', ivt: 'yes', ivtCor: '1', evt: 'yes', evtCor: '1', nhi: /192\/104/, total: 64.8, bolus: 6.5, infusion: 58.3, tnk: 20 },
+   points: [
+    ['intl', '同時符合 IVT 與 EVT：IVT 盡快給，不觀察反應，也不延後取栓（4.7.1，COR 1）。'],
+    ['intl', '血壓須先降到 <185/110 才開始 IVT（4.3，COR 1）；IVT 後至少 24 小時維持 <180/105（COR 1）。'],
+    ['intl', '72 kg：alteplase 64.8 mg（bolus 6.5 mg、其餘 58.3 mg 輸注 60 分鐘），或 tenecteplase 20 mg 單次推注，兩者同為 COR 1。'],
+    ['tw', '附表二-C 把「需積極靜脈降壓才能達標」列為排除條件。指引要求先降壓後給藥，健保卻可能不給付，應在給藥前向家屬說明。']],
+   twist: { label: '如果 CTA 還沒做完？', p: { occl: 'pending' }, expect: { scenario: 'b', ivt: 'yes', evt: 'pending' }, note: '不要為了血管影像延誤 IVT（4.6.1，COR 1）；先給藥，同步完成 CTA。' } },
+
+ { id: 'c2', tag: '輕症', title: 'NIHSS 2：該不該打？',
+   stem: '58 歲女性，距最後正常 2 小時，左臉與左手麻木，沒有無力，可自行走路、進食，也能回去工作。體重 60 kg，血壓 150/84，血糖 118，血小板 240。NIHSS 2。CT 無出血；CTA 無大血管阻塞。無心房顫動。',
+   ask: '在 4.5 小時內，IVT 是首選嗎？如果不是，該給什麼？',
+   p: { age: '58', weight: '60', sbp: '150', dbp: '84', glucose: '118', plt: '240', nihss: '2', aspects: '10' },
+   expect: { scenario: 'd', ivt: 'no', ivtCor: '3: No Benefit', evt: 'no', after: /clopidogrel/ },
+   points: [
+    ['intl', '輕微且非失能的症狀（如單純感覺症狀），IVT 未優於雙重抗血小板（4.6.1，3: No Benefit）。'],
+    ['intl', '未接受 IVT、NIHSS ≤3、非心因性：24 小時內開始 aspirin + clopidogrel（含負荷劑量），21 天後改單一抗血小板（4.8，COR 1）。'],
+    ['intl', '決定點是功能而不是分數：有失能症狀時，不論 NIHSS 多少，符合資格者都應盡快治療（4.6.1，COR 1）。'],
+    ['tw', '健保把 NIHSS <4 列為排除。若症狀其實會失能，指引建議 IVT，但不符給付條件。']],
+   twist: { label: '如果 NIHSS 同樣 2 分，但完全說不出話？', p: { disabling: true }, expect: { scenario: 'b', ivt: 'yes', ivtCor: '1', evt: 'no', nhi: /NIHSS <4/ }, note: '失語會妨礙回到工作，屬明顯失能：指引改為建議 IVT；健保仍因 NIHSS <4 不符。' } },
+
+ { id: 'c3', tag: '醒來中風', title: '起床才發現左側無力',
+   stem: '74 歲女性，昨晚 22:30 仍正常，23:00 入睡，今晨 07:00 醒來發現左側無力，現在 08:00。體重 55 kg，血壓 156/82，血糖 130，血小板 190，mRS 0。NIHSS 8。CT 無出血，CTA 無大血管阻塞。MRI：DWI 病灶 <1/3 MCA，FLAIR 無明顯訊號變化。',
+   ask: '距最後正常已 9.5 小時，還能給 IVT 嗎？時鐘從哪裡算？',
+   p: { onsetType: 'wake', tLkw: 9.5, tRecog: 1, tSleepMid: 5, age: '74', weight: '55', sbp: '156', dbp: '82', glucose: '130', plt: '190', nihss: '8', dwiFlair: true },
+   expect: { scenario: 'b', ivt: 'yes', ivtCor: '2a', evt: 'no', nhi: /時間不明/, total: 49.5, tnk: 15 },
+   points: [
+    ['intl', 'DWI-FLAIR 路徑從「發現症狀」起算：4.5 小時內 + mismatch，IVT 可能有益（4.6.3，2a）。'],
+    ['intl', '無法做 MRI 時的另一條路：自動化灌流有可挽救半影區、不適合 EVT、距睡眠中點 9 小時內（4.6.3，2a）。兩條路的時間起點不同，不可混用。'],
+    ['tw', '健保須中風時間明確且在 4.5 小時內，本例不符。指引允許的延長時窗不等於健保給付，給藥前應先說明費用。']],
+   twist: { label: '如果 CTA 其實是 M1 阻塞、ASPECTS 8？', p: { occl: 'm1', aspects: '8' }, expect: { scenario: 'a', ivt: 'yes', ivtCor: '2a', evt: 'yes', evtCor: '1' }, note: 'DWI-FLAIR 路徑沒有「不適合 EVT」這項要求；距最後正常 6–24 小時、ASPECTS ≥6 亦建議 EVT（COR 1）。' } },
+
+ { id: 'c4', tag: '晚到取栓', title: '14 小時、大梗塞核心',
+   stem: '62 歲男性，最後正常在 14 小時前，被家人發現左側癱瘓。mRS 0，體重 80 kg，血壓 170/90，血糖 140。NIHSS 18。CT 無出血，右 MCA 已有大範圍低密度，ASPECTS 4，無明顯占位效應；CTA 右 M1 阻塞。',
+   ask: 'ASPECTS 只有 4，又過了 14 小時，還建議取栓嗎？要符合哪些條件？',
+   p: { tLkw: 14, age: '62', weight: '80', sbp: '170', dbp: '90', glucose: '140', nihss: '18', ct: 'hypodense', aspects: '4', occl: 'm1' },
+   expect: { scenario: 'c', ivt: 'no', evt: 'yes', evtCor: '1' },
+   points: [
+    ['intl', '6–24 小時、ASPECTS 3–5：須同時符合 <80 歲、NIHSS ≥6、mRS 0–1、無明顯占位效應（4.7.2，COR 1）。'],
+    ['intl', 'ASPECTS 0–2 只有 6 小時內的 2a 建議；6–24 小時的 ASPECTS 0–2 沒有對應建議。'],
+    ['intl', '術前血壓 ≤185/110（2a）；術中與術後 24 小時 ≤180/105（2a）；成功再通後 72 小時內把收縮壓壓到 <140 有害（3: Harm）。'],
+    ['tw', '機械取栓給付已於 112.11.1 放寬至 24 小時內（支付標準 33143B）。']],
+   twist: { label: '如果病人 82 歲？', p: { age: '82' }, expect: { scenario: 'd', ivt: 'no', evt: 'no' }, note: '此建議條文限 <80 歲，指引註明 >80 歲證據的適用性有限。工具因此判為不符，實際仍可依個案與家屬討論。' } },
+
+ { id: 'c5', tag: '抗凝血', title: 'Warfarin，INR 1.5',
+   stem: '76 歲女性，心房顫動服 warfarin，目擊發作 3 小時，右側無力併失語。mRS 1，體重 58 kg，血壓 168/88，血糖 150，血小板 200。INR 1.5。NIHSS 9。CT 無出血，ASPECTS 9；CTA 無大血管阻塞。',
+   ask: '指引與健保對這個 INR 的看法一樣嗎？',
+   p: { tLkw: 3, age: '76', weight: '58', preMrs: '1', sbp: '168', dbp: '88', glucose: '150', anticoag: 'warfarin', inr: '1.5', nihss: '9', af: true },
+   expect: { scenario: 'b', ivt: 'yes', ivtCor: '1', evt: 'no', nhi: /INR 1\.5 >1\.3/, total: 52.2, tnk: 15 },
+   points: [
+    ['intl', 'AHA Table 8 的門檻是 INR >1.7。服 warfarin 或 heparin 者須等報告；其他沒有理由懷疑凝血異常者不必等（4.6.1，2a）。'],
+    ['intl', 'DOAC <48 小時是另一回事：屬相對禁忌，安全性未知，須考量最後服藥時間、腎功能、拮抗劑與 anti-Xa／凝血酶時間，也要評估取栓。'],
+    ['intl', 'AF 而無活動性冠心病或近期支架：口服抗凝血劑上不要常規加抗血小板（4.8，3: Harm）。24 小時追蹤影像後才開始抗栓藥物；較輕症者早期口服抗凝合理（4.9，2a）。'],
+    ['tw', '健保以 warfarin 且 INR >1.3 為排除，所以 INR 1.3–1.7 是「指引可給、健保不符」的灰色區，須事先說明。']],
+   twist: { label: '如果 INR 1.9，且 CTA 是 M1 阻塞、ASPECTS 8？', p: { inr: '1.9', occl: 'm1', aspects: '8' }, expect: { scenario: 'c', ivt: 'no', evt: 'yes', evtCor: '1' }, note: 'INR >1.7 擋下 IVT；本頁的 EVT 條件不含 INR，因此轉為直接取栓。' } },
+
+ { id: 'c6', tag: '延長時窗', title: '7 小時、M2 非優勢分支，輸注中頭痛',
+   stem: '66 歲女性，目擊發作 7 小時，mRS 0，體重 64 kg，血壓 176/92，血糖 120，血小板 240。NIHSS 9。CT 無出血，ASPECTS 8；CTA 為共優勢 M2 阻塞；自動化灌流顯示可挽救半影區。給 alteplase 後第 40 分鐘，病人劇烈頭痛、嘔吐，血壓升到 205/110。',
+   ask: '為什麼這裡選 IVT 而不是取栓？輸注中出現症狀，下一步是什麼？',
+   p: { tLkw: 7, age: '66', weight: '64', sbp: '176', dbp: '92', glucose: '120', plt: '240', nihss: '9', aspects: '8', occl: 'm2nondom', penumbra: true },
+   expect: { scenario: 'b', ivt: 'yes', ivtCor: '2a', evt: 'no', evtCor: '3: No Benefit', nhi: /4\.5/, total: 57.6, bolus: 5.8, infusion: 51.8, tnk: 17.5 },
+   points: [
+    ['intl', '非優勢／共優勢 M2、遠端 MCA、ACA、PCA 阻塞：EVT 無益（4.7.2，3: No Benefit），因此符合「不適合 EVT、4.5–9 小時有半影區」的 IVT 路徑（4.6.3，2a）。'],
+    ['intl', '劇烈頭痛、急性高血壓、噁心嘔吐或神經學惡化：立即停止輸注並做緊急頭部 CT（Table 7）。'],
+    ['intl', '確認 sICH（Table 5）：驗 CBC、PT/INR、aPTT、fibrinogen 並備血；cryoprecipitate 10 U 於 10–30 分鐘輸注，維持 fibrinogen ≥150 mg/dL；或 tranexamic acid 1000 mg IV 10 分鐘；會診血液科與神經外科。'],
+    ['tw', '超過 4.5 小時不符健保 rt-PA 條件。']],
+   twist: { label: '如果同樣 7 小時，但是 M1 阻塞？', p: { occl: 'm1' }, expect: { scenario: 'c', ivt: 'no', evt: 'yes', evtCor: '1' }, note: '可接受 EVT 的病人不走延長時窗 IVT 路徑，改為直接取栓（COR 1）。' } }
+];
+/*CASES-END*/
+
+/*QUIZ-START*/
+// ans = opts 的索引，選項順序固定（A–D 各 5 題）。tests.cjs 以 AIS 引擎核對可計算的題目。
+const AIS_QUIZ = [
+ { id: 'b1', level: 'basic', topic: '時間', stem: '病人今早 08:00 醒來發現左側無力，昨晚 23:00 入睡前正常。「最後正常時間」應記為？',
+   opts: ['今早 08:00（發現症狀）', '昨晚 23:00（入睡前正常）', '凌晨 03:30（睡眠中點）', '今早到院掛號的時間'], ans: 1,
+   why: 'LKW 是最後確定正常的時間。發現症狀時間用於 DWI-FLAIR 路徑，睡眠中點用於灌流路徑，兩者都不是 LKW。', src: 'AHA 2026 4.6.3' },
+ { id: 'b2', level: 'basic', topic: '劑量', stem: '80 kg 成人，標準 alteplase 的劑量分配為？',
+   opts: ['總量 80 mg：bolus 8 mg，輸注 72 mg', '總量 72 mg：bolus 14.4 mg，輸注 57.6 mg', '總量 72 mg：bolus 7.2 mg，輸注 64.8 mg', '總量 48 mg：bolus 7.2 mg，輸注 40.8 mg'], ans: 2,
+   why: '0.9 mg/kg（上限 90 mg），10% 於 1 分鐘 bolus，其餘輸注 60 分鐘。80 × 0.9 = 72 mg。', src: 'AHA 2026 Table 7' },
+ { id: 'b3', level: 'basic', topic: '劑量', stem: '75 kg 成人使用 tenecteplase，依指引體重級距應給？',
+   opts: ['20 mg（4 mL），單次推注', '18.8 mg，bolus 後輸注 60 分鐘', '25 mg（5 mL），單次推注', '30 mg（6 mL），單次推注'], ans: 0,
+   why: '70 至 <80 kg 級距為 20 mg（4 mL）。0.25 mg/kg 上限 25 mg；0.4 mg/kg 不建議（3: No Benefit）。', src: 'AHA 2026 Table 7；4.6.2' },
+ { id: 'b4', level: 'basic', topic: '血壓', stem: '接受 IVT 的病人，血壓目標何者正確？',
+   opts: ['給藥前 <220/120；給藥後 <185/110', '給藥前 <180/105；給藥後 <140/90', '給藥前 <160/100；給藥後 <160/100', '給藥前 <185/110；給藥後 <180/105'], ans: 3,
+   why: '給藥前 <185/110（COR 1），給藥後至少 24 小時 <180/105（COR 1）。輕中度中風積極壓到 <140 無益。', src: 'AHA 2026 4.3' },
+ { id: 'b5', level: 'basic', topic: '血糖', stem: '發作 1.5 小時，血糖 42 mg/dL。矯正至 110 後，偏癱與失語仍然持續，其餘條件都符合。下一步？',
+   opts: ['已矯正血糖，應視為類中風，不再考慮 IVT', '症狀持續且失能，矯正後仍建議 IVT', '低血糖發作屬絕對禁忌，不可給 IVT', '先觀察 24 小時，症狀未退才可給 IVT'], ans: 1,
+   why: '嚴重低／高血糖矯正後，失能症狀仍在，建議 IVT（COR 1）。', src: 'AHA 2026 4.6.1' },
+ { id: 'b6', level: 'basic', topic: '輕症', stem: '58 歲，發作 2 小時，只有單側麻木，NIHSS 2，不影響日常活動與工作，無 LVO，非心因性。建議？',
+   opts: ['給 alteplase 0.9 mg/kg，4.5 小時內一律給', '給 tenecteplase 0.25 mg/kg，出血風險較低', '不給 IVT，24 小時內開始 aspirin + clopidogrel', '只給 aspirin，雙重抗血小板僅限 TIA 使用'], ans: 2,
+   why: '非失能輕症 IVT 未優於 DAPT（3: No Benefit）；NIHSS ≤3 非心因性、未接受 IVT 者，24 小時內開始 DAPT 共 21 天（COR 1）。', src: 'AHA 2026 4.6.1；4.8' },
+ { id: 'b7', level: 'basic', topic: 'Bridging', stem: 'M1 阻塞，發作 2 小時，同時符合 IVT 與 EVT。正確流程？',
+   opts: ['立即 IVT，同步啟動取栓，不觀察反應', '先給 IVT，觀察 1 小時，症狀無改善才啟動取栓團隊', '直接取栓，略過 IVT 以減少出血', '先做灌流影像，確認半影區再決定'], ans: 0,
+   why: 'IVT 應盡快給，不觀察反應，也不延後 EVT（COR 1）。', src: 'AHA 2026 4.7.1' },
+ { id: 'b8', level: 'basic', topic: '抗栓時機', stem: '無特殊併發症的病人完成 IVT。抗血小板或抗凝血藥物應在何時開始？',
+   opts: ['IVT 結束後立即給 aspirin', 'IVT 開始後 90 分鐘內給 IV aspirin', '住院期間都不使用，出院才開始', '24 小時追蹤 CT／MRI 後才開始'], ans: 3,
+   why: '追蹤影像後才開始抗栓藥物（Table 7）。IVT 同時或開始後 90 分鐘內給 IV aspirin 有害（3: Harm）；24 小時內抗血小板的風險不確定（2b）。', src: 'AHA 2026 Table 7；4.8' },
+ { id: 'b9', level: 'basic', topic: '檢驗', stem: '發作 2 小時，未用抗凝血劑，也沒有理由懷疑凝血異常。開始 IVT 前，哪項結果必須先有？',
+   opts: ['血小板', '血糖', 'INR 與 aPTT', '肌酸酐與 eGFR'], ans: 1,
+   why: '血糖須在 IVT 前確認（COR 1）。沒有理由懷疑異常時，不必等血液與凝血報告（2a），報告若異常再停藥。', src: 'AHA 2026 4.6.1；Table 8' },
+ { id: 'b10', level: 'basic', topic: '台灣健保', stem: '依健保藥品給付規定 2.1.2.2，急性缺血性腦中風的血栓溶解給付哪一種藥物？',
+   opts: ['Alteplase 與 tenecteplase 皆給付', '僅 tenecteplase 給付', '僅 rt-PA（alteplase）給付', '腦中風血栓溶解皆不給付'], ans: 2,
+   why: '2.1.2.2 僅 rt-PA。Tenecteplase（Metalyse）給付限 2.1.2.1 非腦血管血栓。國際指引建議兩者，與健保給付是兩件事。', src: '健保 2.1.2.2（115.9.22）' },
+
+ { id: 'a1', level: 'adv', topic: 'EVT 條件', stem: '都是 M1 阻塞、距最後正常 14 小時、NIHSS 18、mRS 0。哪位病人屬於 COR 1？',
+   opts: ['75 歲、ASPECTS 4、無明顯占位效應', '84 歲、ASPECTS 4、無明顯占位效應', '70 歲、ASPECTS 2、無明顯占位效應', '70 歲、ASPECTS 4、有明顯占位效應'], ans: 0,
+   why: '6–24 小時 ASPECTS 3–5 須 <80 歲且無明顯占位效應。ASPECTS 0–2 只有 6 小時內的建議。', src: 'AHA 2026 4.7.2' },
+ { id: 'a2', level: 'adv', topic: 'EVT 條件', stem: '70 歲 M1 阻塞，發作 3 小時，NIHSS 20，mRS 0，ASPECTS 1，無明顯占位效應。EVT 的建議等級？',
+   opts: ['不建議：ASPECTS <3 一律排除', 'COR 1：與 ASPECTS 3–10 相同', 'COR 2b：效益尚未確立', 'COR 2a：限 <80 歲且無占位效應'], ans: 3,
+   why: '6 小時內 ASPECTS 0–2，在 <80 歲、NIHSS ≥6、mRS 0–1、無明顯占位效應時，EVT 合理（2a）。', src: 'AHA 2026 4.7.2' },
+ { id: 'a3', level: 'adv', topic: '病前失能', stem: 'M1 阻塞，NIHSS 14，ASPECTS 7，病前 mRS 3。發作 4 小時與發作 8 小時，EVT 建議分別為？',
+   opts: ['4 小時 COR 2a；8 小時 COR 2b', '4 小時 COR 2b；8 小時證據不足', '兩個時點皆 COR 1', '兩個時點皆排除，mRS ≥3 不做 EVT'], ans: 1,
+   why: '6 小時內 mRS 3–4、ASPECTS ≥6 為 2b，須與家屬討論目標。6–24 小時的建議限 mRS 0–1。', src: 'AHA 2026 4.7.2' },
+ { id: 'a4', level: 'adv', topic: '基底動脈', stem: '基底動脈阻塞，發作 10 小時，mRS 0，PC-ASPECTS 8。NIHSS 12 與 NIHSS 8 的 EVT 建議分別為？',
+   opts: ['兩者皆 COR 1', 'NIHSS 12 為 2a；NIHSS 8 為 2b', 'NIHSS 12 為 COR 1；NIHSS 8 為 2b', '超過 6 小時，兩者都不建議'], ans: 2,
+   why: '24 小時內、mRS 0–1、PC-ASPECTS ≥6：NIHSS ≥10 為 COR 1，NIHSS 6–9 效益未確立（2b）。', src: 'AHA 2026 4.7.3' },
+ { id: 'a5', level: 'adv', topic: '延長時窗', stem: '目擊發作 7 小時，M1 阻塞，NIHSS 15，mRS 0，ASPECTS 7，灌流有半影區，可立即取栓。最恰當的處置？',
+   opts: ['直接 EVT；延長 IVT 路徑限不適合 EVT 者', 'Bridging：有半影區即可先給 IVT，同時啟動取栓團隊', '只給 IVT：超過 6 小時不做 EVT', '先做 MRI，DWI-FLAIR 符合才可取栓'], ans: 0,
+   why: '4.5–9 小時灌流路徑的前提是不適合 EVT。本例 6–24 小時、ASPECTS ≥6，EVT 為 COR 1。', src: 'AHA 2026 4.6.3；4.7.2' },
+ { id: 'a6', level: 'adv', topic: '指引 vs 健保', stem: '服 warfarin，發作 3 小時，失能症狀，INR 1.5，其餘條件皆符合。指引與健保的立場為？',
+   opts: ['指引與健保都可給，不需另外說明', '指引與健保都排除，應改抗血小板', '指引排除（INR >1.3），健保可給付', '指引可給（≤1.7），健保排除（>1.3）'], ans: 3,
+   why: 'AHA Table 8 門檻為 INR >1.7；健保附表二-C 為 warfarin 且 INR >1.3。臨床可依指引決定，但應說明可能不予給付。', src: 'AHA 2026 Table 8；健保附表二-C' },
+ { id: 'a7', level: 'adv', topic: '併發症', stem: '服 ACE 抑制劑的病人，alteplase 輸注 30 分鐘後上唇與舌前緣腫脹，無喘鳴，血氧正常。處置？',
+   opts: ['繼續輸注至結束，並給抗組織胺、類固醇，再密切觀察呼吸道', '停輸注、停 ACEI，給類固醇與抗組織胺並評估呼吸道', '立即環甲膜切開，以確保呼吸道', '給 vitamin K 與新鮮冷凍血漿逆轉'], ans: 1,
+   why: 'Table 6：停輸注、停 ACEI，methylprednisolone 125 mg、diphenhydramine 50 mg、famotidine 20 mg，惡化再給 epinephrine。僅舌前緣與唇腫可能不需插管；喉、軟顎、口底、口咽且快速進展才是高風險。', src: 'AHA 2026 Table 6' },
+ { id: 'a8', level: 'adv', topic: '併發症', stem: 'Alteplase 輸注第 40 分鐘，病人劇烈頭痛、嘔吐，NIHSS 上升。下列何者符合指引？',
+   opts: ['先完成剩餘輸注，再安排緊急 CT，避免再灌注治療中斷', '給 vitamin K 10 mg 與新鮮冷凍血漿', '停藥、急做 CT、驗 fibrinogen，給 cryoprecipitate 10 U', '停藥，給 protamine 並輸血小板，同時安排急做頭部 CT 與神經外科會診'], ans: 2,
+   why: 'Table 5：停藥、急查 CBC、PT/INR、aPTT、fibrinogen 與 CT；cryoprecipitate 10 U 維持 fibrinogen ≥150 mg/dL；也可用 tranexamic acid 1000 mg。', src: 'AHA 2026 Table 5、Table 7' },
+ { id: 'a9', level: 'adv', topic: '術後血壓', stem: 'M1 取栓成功（mTICI 3），術後血壓 168/88，沒有其他降壓適應症。血壓處理應為？',
+   opts: ['加降壓藥壓到 <140 並維持 72 小時，以減少再灌流傷害', '壓到 <120，因再通後血腦屏障受損', '維持 ≥180，確保側枝循環灌流', '維持 ≤180/105，不主動壓到 <140'], ans: 3,
+   why: '術中與術後 24 小時 ≤180/105 合理（2a）；成功再通者 72 小時內把收縮壓壓到 <140 有害（3: Harm）。', src: 'AHA 2026 4.3' },
+ { id: 'a10', level: 'adv', topic: 'DAPT', stem: 'NIHSS 4，發作 30 小時，未接受 IVT，影像符合 70% 顱內動脈狹窄造成的動脈粥狀硬化性中風。抗血小板選擇？',
+   opts: ['Clopidogrel + aspirin 21 天，再改單一抗血小板', 'Ticagrelor 單一療法取代 aspirin，持續 90 天後再評估', 'Aspirin + clopidogrel + dipyridamole 三合一', '先用 heparin 48 小時，再改抗血小板'], ans: 0,
+   why: 'NIHSS ≤5、24–72 小時、推測動脈粥狀硬化（≥50% 狹窄）：DAPT 21 天後單一抗血小板合理（2a）。三合一有害（3: Harm）；48 小時內早期抗凝無益（3: No Benefit）。', src: 'AHA 2026 4.8；4.9' }
+];
+/*QUIZ-END*/
+
+/*MAP-START*/
+// tw:true = 台灣健保規定，不是國際指引。數字由 tests.cjs 抽查，修改引擎門檻時請一併更新。
+const AIS_MAP = {
+ dx: [
+  { t: '時間與發作型態', s: '先確定時鐘從哪裡算', l: [
+    { k: 'LKW', x: '最後確定正常的時間，不是發現症狀的時間' },
+    { k: '醒來中風', x: 'LKW 回推到入睡前；另記發現時間與睡眠中點' },
+    { k: '發現時間', x: 'DWI-FLAIR 路徑從這裡算 4.5 小時' },
+    { k: '睡眠中點', x: '灌流路徑從這裡算 9 小時' }] },
+  { t: '床邊快速評估', s: '不延誤給藥的前提下完成', l: [
+    { k: 'NIHSS', x: '15 項，滿分 42' },
+    { k: '失能判斷', x: 'NIHSS 0–5 必判斷：能否完成基本日常活動或回到工作' },
+    { k: '血糖', x: 'IVT 前必測（COR 1）' },
+    { k: '血壓', x: 'IVT 前須 <185/110' },
+    { k: '病前 mRS', x: '決定 EVT 建議等級' },
+    { k: '體重', x: '劑量用；不為了量精確體重延誤給藥' }] },
+  { t: '影像', s: '進階影像不可延誤 IVT', l: [
+    { k: '非顯影 CT', x: '出血或大範圍明顯低密度 → 不給 IVT' },
+    { k: 'ASPECTS', x: '前循環 EVT 分層：0–2、3–5、≥6' },
+    { k: 'CTA／MRA', x: '找 LVO；不必等 creatinine' },
+    { k: '自動化灌流', x: '可挽救半影區，用於延長時窗' },
+    { k: 'DWI-FLAIR', x: 'DWI <1/3 MCA 且 FLAIR 無明顯訊號變化' },
+    { k: 'PC-ASPECTS', x: '基底動脈 EVT，須 ≥6' }] },
+  { t: 'IVT 絕對禁忌', s: 'Table 8', l: [
+    { k: '影像', x: '顱內出血；大範圍明顯低密度' },
+    { k: '近期', x: '14 天內中重度頭部外傷或顱內／脊髓手術；3 個月內急性脊髓損傷' },
+    { k: '結構與血管', x: '腦實質內腫瘤；感染性心內膜炎；主動脈弓剝離' },
+    { k: '藥物', x: '類澱粉蛋白抗體或 ARIA' },
+    { k: '凝血', x: '血小板 <100k、INR >1.7、aPTT >40 秒、PT >15 秒' }] },
+  { t: '相對禁忌與低風險情境', s: '個別評估，不是一律不給', l: [
+    { k: 'DOAC <48 h', x: '安全性未知；考量服藥時間、腎功能、拮抗劑、anti-Xa' },
+    { k: '近期事件', x: '3 個月內中風或 STEMI；14 天內重大創傷；10 天內重大手術；21 天內腸胃／泌尿道出血' },
+    { k: '其他', x: '曾顱內出血、懷孕／產後、活動性惡性腫瘤、顱內動脈剝離' },
+    { k: '微出血', x: '1–10 顆合理（2a）；>10 顆效益不確定（2b）' },
+    { k: '效益通常大於風險', x: '顱外頸動脈剝離、顱外腫瘤、未破裂動脈瘤、疑似類中風' }] },
+  { t: '抗凝血與檢驗', s: '什麼時候要等報告', l: [
+    { k: '不必等', x: '沒有理由懷疑凝血異常（2a），異常再停藥' },
+    { k: '要等 INR', x: '服 warfarin，>1.7 不給' },
+    { k: '要等 aPTT', x: '48 小時內用 heparin，>40 秒不給' },
+    { k: 'LMWH', x: '24 小時內治療劑量不給' }] }
+ ],
+ tx: [
+  { t: 'IVT 標準時窗', s: '≤4.5 小時', l: [
+    { k: '失能症狀', x: '不論 NIHSS，符合資格者盡快給（COR 1）' },
+    { k: '非失能輕症', x: '不建議（3: No Benefit），改 DAPT' },
+    { k: '抗血小板', x: '單一或雙重抗血小板仍建議 IVT（COR 1）' },
+    { k: '共享決策', x: '可行時與病人或代理人討論風險效益' }] },
+  { t: 'IVT 延長時窗', s: '三條路各有前提', l: [
+    { k: '2a', x: '時間不明，發現 4.5 小時內 + DWI-FLAIR mismatch' },
+    { k: '2a', x: '不適合 EVT + 半影區 + 4.5–9 小時或睡眠中點 9 小時內' },
+    { k: '2b', x: 'LVO + 半影區 + 4.5–24 小時 + 無法接受 EVT，由有經驗團隊決定' }] },
+  { t: '劑量', s: '兩人核對', l: [
+    { k: 'Alteplase', x: '0.9 mg/kg，上限 90 mg；10% bolus，其餘 60 分鐘' },
+    { k: 'Tenecteplase', x: '0.25 mg/kg，上限 25 mg，單次推注' },
+    { k: 'TNK 級距', x: '<60 kg 15 mg、60–<70 kg 17.5、70–<80 kg 20、80–<90 kg 22.5、≥90 kg 25' },
+    { k: 'TNK 0.4 mg/kg', x: '不建議（3: No Benefit）' },
+    { k: '先抽棄', x: '多餘的 alteplase 先抽出丟棄，避免過量' }] },
+  { t: 'EVT：ICA／M1', s: '皆須 NIHSS ≥6', l: [
+    { k: '0–6 h，ASPECTS 3–10', x: 'mRS 0–1（COR 1）' },
+    { k: '0–6 h，ASPECTS 0–2', x: '<80 歲、無占位、mRS 0–1（2a）' },
+    { k: '0–6 h，病前失能', x: 'ASPECTS ≥6：mRS 2（2a）、mRS 3–4（2b）' },
+    { k: '6–24 h，ASPECTS ≥6', x: 'mRS 0–1（COR 1）' },
+    { k: '6–24 h，ASPECTS 3–5', x: '<80 歲、無占位、mRS 0–1（COR 1）' }] },
+  { t: 'EVT：其他血管', s: '分支與後循環', l: [
+    { k: '基底動脈', x: '24 小時內、mRS 0–1、PC-ASPECTS ≥6：NIHSS ≥10（COR 1）；6–9（2b）' },
+    { k: '優勢 M2 近端', x: '6 小時內、mRS 0–1、NIHSS ≥6、ASPECTS ≥6（2a，效益不確定）' },
+    { k: '不建議', x: '非優勢／共優勢 M2、遠端 MCA、ACA、PCA（3: No Benefit）' },
+    { k: 'Bridging', x: '兩者皆符合：立即 IVT，不觀察反應（COR 1）' }] },
+  { t: '血壓目標', s: '依治療階段而變', l: [
+    { k: 'IVT 前', x: '<185/110（COR 1）' },
+    { k: 'IVT 後 24 h', x: '<180/105（COR 1）；輕中度不需壓到 <140' },
+    { k: 'EVT 前（未 IVT）', x: '≤185/110（2a）' },
+    { k: 'EVT 中與後 24 h', x: '≤180/105（2a）' },
+    { k: '成功再通後 72 h', x: '壓到 <140 有害（3: Harm）' },
+    { k: '未接受再灌注', x: '<220/120 且無其他適應症：48–72 小時內開始降壓無益' }] },
+  { t: '抗栓治療', s: 'IVT 後先追蹤影像', l: [
+    { k: 'Aspirin', x: '48 小時內開始（COR 1）；不可取代再灌注治療' },
+    { k: 'IV aspirin', x: 'IVT 同時或開始後 90 分鐘內不可給（3: Harm）' },
+    { k: 'DAPT', x: 'NIHSS ≤3、24 小時內、未 IVT：clopidogrel + aspirin 21 天（COR 1）' },
+    { k: 'DAPT 延伸', x: 'NIHSS ≤5、24–72 小時或 NIHSS 4–5、24 小時內，推測動脈粥狀硬化（2a）' },
+    { k: 'AF', x: '較輕症早期口服抗凝合理（2a）；常規加抗血小板有害（3: Harm）' },
+    { k: '早期抗凝', x: '48 小時內常規使用無益（3: No Benefit）' }] },
+  { t: 'IVT 併發症', s: 'Table 5、Table 6', l: [
+    { k: '警訊', x: '劇烈頭痛、急性高血壓、噁心嘔吐、神經學惡化 → 停輸注、急 CT' },
+    { k: 'sICH', x: 'Cryoprecipitate 10 U，維持 fibrinogen ≥150 mg/dL；或 TXA 1000 mg IV' },
+    { k: '血管性水腫', x: '維持呼吸道；停輸注與 ACEI；methylprednisolone 125 mg、diphenhydramine 50 mg、famotidine 20 mg' },
+    { k: '惡化時', x: 'Epinephrine 0.1% 0.3 mL IM 或霧化' }] },
+  { t: '台灣健保', s: '與指引分開看', l: [
+    { k: '藥物', x: '腦中風僅給付 rt-PA，不含 tenecteplase', tw: true },
+    { k: '時間', x: '中風時間明確且 4.5 小時內', tw: true },
+    { k: 'NIHSS', x: '<4 或 >25 排除', tw: true },
+    { k: '血壓', x: '>185/110，或需積極靜脈降壓才能達標，皆排除', tw: true },
+    { k: '凝血', x: '血小板 <100,000；warfarin 且 INR >1.3', tw: true },
+    { k: '血糖', x: '<50 或 >400 mg/dL 排除', tw: true },
+    { k: '取栓', x: '112.11.1 起放寬至 24 小時內（33143B）', tw: true }] }
+ ]
+};
+/*MAP-END*/
 
 // ---------- UI ----------
 const $ = id => document.getElementById(id);
@@ -875,6 +1222,146 @@ $('btnCopy').onclick = async () => {
   }
   setTimeout(() => $('btnCopy').textContent = '複製評估摘要', 1500);
 };
+// ---------- 分頁、病例、考題、心智圖 ----------
+const VIEWS = ['tool', 'cases', 'quiz', 'map'];
+function showView(v) {
+  if (!VIEWS.includes(v)) v = 'tool';
+  VIEWS.forEach(x => {
+    $('view-' + x).classList.toggle('hidden', x !== v);
+    const t = $('tab-' + x);
+    t.classList.toggle('on', x === v);
+    t.setAttribute('aria-selected', x === v);
+  });
+  document.body.classList.toggle('notool', v !== 'tool');
+  if (v === 'map') drawMapLinks();
+}
+function routeFromHash() { showView(location.hash.slice(1)); }
+
+const fromCase = c => ({ ...CASE_BASE, ...c.p });
+const SRC_TAG = { intl: '<span class="src-tag intl">國際指引</span>', tw: '<span class="src-tag tw">台灣健保</span>' };
+const COR_TXT = r => r.title + (r.cor ? `（COR ${r.cor}）` : '');
+
+function caseEngineHtml(p, compact) {
+  const r = AIS.decide(p);
+  const icon = { blk: '✗ ', wrn: '⚠ ', act: '→ ', ok: '✓ ' };
+  const cls = { blk: 'blk', wrn: 'wrn', act: 'act', ok: '' };
+  const items = rs => rs.map(([k, t]) => `<li class="${cls[k]}">${icon[k]}${esc(t)}</li>`).join('');
+  let h = `<div class="panel scenario-${r.scenario.key} case-scn"><b>${esc(r.scenario.title)}</b></div>`;
+  h += `<div class="case-tracks">
+    <div class="panel track s-${r.ivt.status}"><div class="head"><h3>IVT</h3><span class="badge ${BADGE[r.ivt.status][0]}">${esc(COR_TXT(r.ivt))}</span></div><ul>${items(r.ivt.reasons)}</ul></div>
+    <div class="panel track s-${r.evt.status}"><div class="head"><h3>EVT</h3><span class="badge ${BADGE[r.evt.status][0]}">${esc(COR_TXT(r.evt))}</span></div><ul>${items(r.evt.reasons)}</ul></div>
+  </div>`;
+  if (r.ivt.status !== 'no') {
+    const a = AIS.alteplase(p.weight, 0.9), t = AIS.tenecteplase(p.weight);
+    if (!compact && a && t) h += `<div class="panel dose"><b>劑量（${a.weight} kg）</b><table>
+      <tr><td>Alteplase 0.9 mg/kg</td><td>${a.total} mg（bolus ${a.bolus}、輸注 ${a.infusion}）</td></tr>
+      <tr><td>Tenecteplase 0.25 mg/kg</td><td>${t.dose} mg（${t.ml} mL）</td></tr></table></div>`;
+    h += `<div class="panel nhi"><b>台灣健保 rt-PA</b><ul>${r.nhi.length ? r.nhi.map(x => `<li class="wrn">⚠ ${esc(x)}</li>`).join('') : '<li>✓ 依已輸入資料，未觸及排除條件</li>'}</ul></div>`;
+  }
+  return h;
+}
+
+let caseIdx = 0;
+function renderCaseNav() {
+  $('caseNav').innerHTML = AIS_CASES.map((c, i) => `<button type="button" class="tbtn${i === caseIdx ? ' primary' : ''}" data-i="${i}">${i + 1}. ${esc(c.tag)}</button>`).join('');
+}
+function renderCase() {
+  renderCaseNav();
+  const c = AIS_CASES[caseIdx], p = fromCase(c);
+  const after = AIS.decide(p).after.map(x => `<li>${x}</li>`).join('');
+  $('caseBody').innerHTML = `<h2>病例 ${caseIdx + 1}：${esc(c.title)}</h2>
+    <p class="case-stem">${esc(c.stem)}</p>
+    <p class="case-ask"><b>先想一想：</b>${esc(c.ask)}</p>
+    <details id="caseAns"><summary>看判斷與教學重點</summary>
+      <div class="case-ans">
+        ${caseEngineHtml(p)}
+        <h3>教學重點</h3>
+        <ul class="case-points">${c.points.map(([s, t]) => `<li>${SRC_TAG[s]} ${esc(t)}</li>`).join('')}</ul>
+        <details class="sub-d"><summary>後續處置重點（決策工具輸出）</summary><ul class="case-points">${after}</ul></details>
+        <div class="case-twist"><h3>變化題：${esc(c.twist.label)}</h3>
+          ${caseEngineHtml({ ...p, ...c.twist.p }, true)}
+          <p>${esc(c.twist.note)}</p></div>
+      </div>
+    </details>
+    <div class="case-actions"><button type="button" class="tbtn primary" id="caseLoad">帶入決策工具</button>
+    <button type="button" class="tbtn" id="caseNext">${caseIdx + 1 < AIS_CASES.length ? '下一個病例' : '回到第一例'}</button></div>`;
+}
+function loadCase(c) {
+  reset();
+  const p = fromCase(c), now = new Date(), ago = h => localIso(new Date(now.getTime() - h * 3600000));
+  $('timeNow').value = localIso(now);
+  $('timeLkw').value = ago(p.tLkw);
+  if (p.tRecog !== null) $('timeRecog').value = ago(p.tRecog);
+  if (p.tSleepMid !== null) $('timeSleepMid').value = ago(p.tSleepMid);
+  ['onsetType', 'age', 'weight', 'preMrs', 'sbp', 'dbp', 'glucose', 'nihss', 'anticoag', 'plt', 'inr', 'aptt', 'pt', 'ct', 'aspects', 'occl', 'pcAspects'].forEach(k => $(k).value = p[k]);
+  ['disabling', 'bpRefractory', 'massEffect', 'penumbra', 'dwiFlair', 'evtLimit', 'af'].forEach(k => $(k).checked = !!p[k]);
+  renderAll();
+  location.hash = '#tool';
+  showView('tool');
+  scrollTo(0, 0);
+}
+
+const quiz = { filter: 'all', picks: {} };
+const LETTERS = ['A', 'B', 'C', 'D'];
+function renderQuiz() {
+  const list = AIS_QUIZ.filter(q => quiz.filter === 'all' || q.level === quiz.filter);
+  const done = list.filter(q => q.id in quiz.picks);
+  const right = done.filter(q => quiz.picks[q.id] === q.ans).length;
+  document.querySelectorAll('#quizFilter button').forEach(b => b.classList.toggle('primary', b.dataset.f === quiz.filter));
+  $('quizScore').textContent = `已答 ${done.length} / ${list.length}，答對 ${right} 題` + (done.length === list.length && list.length ? `（${Math.round(right / list.length * 100)}%）` : '');
+  $('quizList').innerHTML = list.map((q, n) => {
+    const pick = quiz.picks[q.id], answered = pick !== undefined;
+    const opts = q.opts.map((o, i) => {
+      const st = !answered ? '' : i === q.ans ? ' right' : i === pick ? ' wrong' : '';
+      return `<button type="button" class="q-opt${st}" data-q="${q.id}" data-i="${i}"${answered ? ' disabled' : ''}><b>${LETTERS[i]}</b> ${esc(o)}</button>`;
+    }).join('');
+    const fb = answered ? `<div class="q-why ${pick === q.ans ? 'ok' : 'no'}"><b>${pick === q.ans ? '答對' : '答案是 ' + LETTERS[q.ans]}。</b>${esc(q.why)}<div class="q-src">出處：${esc(q.src)}</div></div>` : '';
+    return `<div class="q-card" id="q-${q.id}"><div class="q-meta"><span class="q-lv ${q.level}">${q.level === 'adv' ? '高階' : '基礎'}</span> ${esc(q.topic)}</div><p class="q-stem">${n + 1}. ${esc(q.stem)}</p><div class="q-opts">${opts}</div>${fb}</div>`;
+  }).join('');
+}
+
+function mapBranch(b, side, i) {
+  const leaves = b.l.map(x => `<li><b>${esc(x.k)}</b>　${esc(x.x)}${x.tw ? ' <span class="src-tag tw">台灣健保</span>' : ''}</li>`).join('');
+  return `<div class="mm-branch ${side}"><button type="button" class="mm-head" aria-expanded="false" aria-controls="mm-${side}${i}"><span class="mm-t">${i + 1}. ${esc(b.t)}</span><span class="mm-s">${esc(b.s)}</span></button><ul class="mm-leaves" id="mm-${side}${i}" hidden>${leaves}</ul></div>`;
+}
+function drawMapLinks() {
+  const w = $('mmWrap'), svg = $('mmLinks');
+  if ($('view-map').classList.contains('hidden') || getComputedStyle(svg).display === 'none') return;
+  const W = w.getBoundingClientRect(), C = $('mmCenter').getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${W.width} ${W.height}`);
+  svg.innerHTML = [...w.querySelectorAll('.mm-branch')].map(b => {
+    const dx = b.classList.contains('dx'), r = b.querySelector('.mm-head').getBoundingClientRect();
+    const x1 = (dx ? C.left : C.right) - W.left, y1 = C.top + C.height / 2 - W.top, x2 = (dx ? r.right : r.left) - W.left, y2 = r.top + r.height / 2 - W.top, mx = (x1 + x2) / 2;
+    return `<path class="${dx ? 'dx' : 'tx'}" d="M${x1} ${y1} C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}"/>`;
+  }).join('');
+}
+function setBranch(h, open) { h.setAttribute('aria-expanded', open); $(h.getAttribute('aria-controls')).hidden = !open; }
+
+$('caseNav').onclick = e => { const b = e.target.closest('button'); if (b) { caseIdx = +b.dataset.i; renderCase(); } };
+$('caseBody').onclick = e => {
+  if (e.target.id === 'caseLoad') loadCase(AIS_CASES[caseIdx]);
+  if (e.target.id === 'caseNext') { caseIdx = (caseIdx + 1) % AIS_CASES.length; renderCase(); $('view-cases').scrollIntoView(); }
+};
+$('quizFilter').onclick = e => { const b = e.target.closest('button'); if (b) { quiz.filter = b.dataset.f; renderQuiz(); } };
+$('quizList').onclick = e => {
+  const b = e.target.closest('.q-opt');
+  if (!b || b.disabled) return;
+  quiz.picks[b.dataset.q] = +b.dataset.i;
+  renderQuiz();
+};
+$('quizReset').onclick = () => { quiz.picks = {}; renderQuiz(); scrollTo(0, 0); };
+$('mmDx').innerHTML = '<h3 class="mm-col dx">診斷與評估</h3>' + AIS_MAP.dx.map((b, i) => mapBranch(b, 'dx', i)).join('');
+$('mmTx').innerHTML = '<h3 class="mm-col tx">治療</h3>' + AIS_MAP.tx.map((b, i) => mapBranch(b, 'tx', i)).join('');
+const mmHeads = () => document.querySelectorAll('#mmWrap .mm-head');
+$('mmWrap').addEventListener('click', e => { const h = e.target.closest('.mm-head'); if (h) { setBranch(h, h.getAttribute('aria-expanded') !== 'true'); drawMapLinks(); } });
+$('mmOpen').onclick = () => { mmHeads().forEach(h => setBranch(h, true)); drawMapLinks(); };
+$('mmClose').onclick = () => { mmHeads().forEach(h => setBranch(h, false)); drawMapLinks(); };
+if (window.ResizeObserver) new ResizeObserver(drawMapLinks).observe($('mmWrap')); else addEventListener('resize', drawMapLinks);
+renderCase();
+renderQuiz();
+addEventListener('hashchange', routeFromHash);
+routeFromHash();
+
 setNow('timeNow');
 renderAll();
 </script>
