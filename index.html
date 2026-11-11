@@ -171,7 +171,7 @@ details.sub-d summary{font-size:.9em}
   <p class="sub">IV 血栓溶解 (alteplase / tenecteplase) 與動脈取栓 (EVT) 雙軌評估 · 依 2026 AHA/ASA 指引 · 附台灣健保 rt-PA 條件檢核</p>
   <nav class="tabs" role="tablist" aria-label="頁面分頁">
     <a class="tab on" id="tab-tool" role="tab" href="#tool">決策工具</a>
-    <a class="tab" id="tab-cases" role="tab" href="#cases">示範病例 10</a>
+    <a class="tab" id="tab-cases" role="tab" href="#cases">示範病例 11</a>
     <a class="tab" id="tab-quiz" role="tab" href="#quiz">考題 24</a>
     <a class="tab" id="tab-map" role="tab" href="#map">心智圖</a>
   </nav>
@@ -455,7 +455,7 @@ details.sub-d summary{font-size:.9em}
     </ol>
   </div>
   <div class="disclaimer">⚠️ 本工具僅供醫療專業人員教育與決策輔助，不可取代臨床判斷。給藥前請依院內 SOP 由兩人雙重核對體重、劑量與禁忌症。Tenecteplase 用於腦中風健保不給付（2.1.2.2 僅 rt-PA），台灣核准適應症請依院內規定確認。</div>
-  <div class="ver">v2.3 · 2026-11-11</div>
+  <div class="ver">v2.4 · 2026-11-11</div>
 </div>
 
 <div class="mbar" id="mbar"><span id="mbarText">—</span><button class="tbtn" type="button" id="mbarBtn">看結果</button></div>
@@ -884,7 +884,19 @@ const AIS_CASES = [
     ['intl', '劑量有上限：0.9 mg/kg 以 90 mg 封頂，110 kg 給 alteplase 90 mg（bolus 9 mg、輸注 81 mg）；tenecteplase 以 25 mg 封頂（≥90 kg 級距）。'],
     ['intl', 'NIHSS 高本身不是指引的 IVT 禁忌；ICA 阻塞、6 小時內、ASPECTS 6，EVT 為 COR 1，兩者同步進行，不觀察反應（4.7.1）。'],
     ['tw', '健保附表二-C 排除 NIHSS >25、血壓 >185/110，以及需積極靜脈降壓才能達標者。本例指引建議 IVT，但三項皆不符給付，應在給藥前說明。']],
-   twist: { label: '如果 nicardipine 加到最大劑量，血壓仍 196/118？', p: { bpRefractory: true }, expect: { scenario: 'c', ivt: 'no', evt: 'yes', evtCor: '1' }, note: '血壓無法降至 <185/110 時不可給 IVT，改為直接取栓；術前仍以 ≤185/110 為目標（2a）。' } }
+   twist: { label: '如果 nicardipine 加到最大劑量，血壓仍 196/118？', p: { bpRefractory: true }, expect: { scenario: 'c', ivt: 'no', evt: 'yes', evtCor: '1' }, note: '血壓無法降至 <185/110 時不可給 IVT，改為直接取栓；術前仍以 ≤185/110 為目標（2a）。' } },
+ { id: 'c11', tag: '複雜：透析', title: '透析結束 2 小時後中風',
+   stem: '66 歲女性，糖尿病合併末期腎病，每週一三五血液透析，今早透析中依常規使用 heparin。透析結束約 2 小時後，家屬目擊她突然右側無力、說話不清，到院時距最後正常 1.5 小時。mRS 1，乾體重 52 kg，血壓 178/96，血糖 210，血小板 150。NIHSS 11。CT 無出血，ASPECTS 9；CTA 無大血管阻塞。aPTT 36 秒。',
+   ask: '透析病人能打 IVT 嗎？透析中用過 heparin，要等哪一項報告？',
+   p: { tLkw: 1.5, age: '66', weight: '52', preMrs: '1', sbp: '178', dbp: '96', glucose: '210', plt: '150', anticoag: 'heparin', aptt: '36', nihss: '11', aspects: '9', nhi: ['otherRisk'] },
+   expect: { scenario: 'b', ivt: 'yes', ivtCor: '1', evt: 'no', nhi: /透析/, total: 46.8, bolus: 4.7, infusion: 42.1, tnk: 15 },
+   points: [
+    ['intl', '透析中使用 heparin，就屬於「48 小時內用 heparin」：須等 aPTT，>40 秒不可給 IVT（Table 8）。本例 aPTT 36 秒，可給。'],
+    ['intl', '透析本身不在本頁依 Table 8 整理的絕對或相對禁忌中；決定點在 aPTT、血小板與其他出血風險。'],
+    ['intl', '血管影像不必等 creatinine（COR 1）；透析病人更不應因顯影劑顧慮延誤 CTA。'],
+    ['intl', '52 kg：alteplase 46.8 mg（bolus 4.7 mg、輸注 42.1 mg），或 tenecteplase 15 mg。若病人服 DOAC，腎功能會影響藥物清除，最後服藥時間須一併考量。'],
+    ['tw', '健保附表二-C 將「其他增加出血風險狀況（如透析、嚴重心衰竭、身體極度衰弱）」列為排除。指引可給，但健保可能不給付，給藥前應說明。']],
+   twist: { label: '如果 aPTT 還沒出來？', p: { aptt: '' }, expect: { scenario: 'p', ivt: 'pending', evt: 'no' }, note: '48 小時內用過 heparin 不可省略 aPTT：先完成降壓、血糖與 CTA 等其他準備，報告一出 ≤40 秒立即給藥，>40 秒則不給。' } }
 ];
 /*CASES-END*/
 
@@ -1001,29 +1013,37 @@ const AIS_MAP = {
     { k: '近期事件', x: '3 個月內中風或 STEMI；14 天內重大創傷；10 天內重大手術；21 天內腸胃／泌尿道出血' },
     { k: '其他', x: '曾顱內出血、懷孕／產後、活動性惡性腫瘤、顱內動脈剝離' },
     { k: '微出血', x: '1–10 顆合理（2a）；>10 顆效益不確定（2b）' },
-    { k: '效益通常大於風險', x: '顱外頸動脈剝離、顱外腫瘤、未破裂動脈瘤、疑似類中風' }] },
+    { k: '效益通常大於風險', x: '顱外頸動脈剝離、顱外腫瘤、未破裂動脈瘤、疑似類中風' },
+    { k: '心導管後中風', x: '近期 STEMI 屬 IVT 相對禁忌；取栓不受影響' }] },
   { t: '抗凝血與檢驗', s: '什麼時候要等報告', l: [
     { k: '不必等', x: '沒有理由懷疑凝血異常（2a），異常再停藥' },
     { k: '要等 INR', x: '服 warfarin，>1.7 不給' },
     { k: '要等 aPTT', x: '48 小時內用 heparin，>40 秒不給' },
-    { k: 'LMWH', x: '24 小時內治療劑量不給' }] }
+    { k: 'LMWH', x: '24 小時內治療劑量不給' },
+    { k: '透析', x: '透析中用 heparin 即屬 48 小時內 heparin：須等 aPTT' },
+    { k: '報告未出', x: '同步啟動取栓團隊，不要等凝血報告才通知' },
+    { k: '取栓不看凝血', x: 'EVT 條件不含 INR／aPTT；DOAC 或 heparin 合併 LVO 時優先直接 EVT' }] }
  ],
  tx: [
   { t: 'IVT 標準時窗', s: '≤4.5 小時', l: [
     { k: '失能症狀', x: '不論 NIHSS，符合資格者盡快給（COR 1）' },
     { k: '非失能輕症', x: '不建議（3: No Benefit），改 DAPT' },
     { k: '抗血小板', x: '單一或雙重抗血小板仍建議 IVT（COR 1）' },
-    { k: '共享決策', x: '可行時與病人或代理人討論風險效益' }] },
+    { k: '共享決策', x: '可行時與病人或代理人討論風險效益' },
+    { k: '重症', x: 'NIHSS 高（如 >25）不是 IVT 禁忌；LVO 時同步取栓' }] },
   { t: 'IVT 延長時窗', s: '三條路各有前提', l: [
     { k: '2a', x: '時間不明，發現 4.5 小時內 + DWI-FLAIR mismatch' },
     { k: '2a', x: '不適合 EVT + 半影區 + 4.5–9 小時或睡眠中點 9 小時內' },
-    { k: '2b', x: 'LVO + 半影區 + 4.5–24 小時 + 無法接受 EVT，由有經驗團隊決定' }] },
+    { k: '2b', x: 'LVO + 半影區 + 4.5–24 小時 + 無法接受 EVT，由有經驗團隊決定' },
+    { k: '時鐘不可混用', x: 'DWI-FLAIR 從發現時間、灌流從睡眠中點起算，兩者都不是 LKW' },
+    { k: '能取栓就不走', x: '可接受 EVT 者不走灌流 IVT 路徑，改直接 EVT；共優勢 M2 正因不適合 EVT 而符合' }] },
   { t: '劑量', s: '兩人核對', l: [
     { k: 'Alteplase', x: '0.9 mg/kg，上限 90 mg；10% bolus，其餘 60 分鐘' },
     { k: 'Tenecteplase', x: '0.25 mg/kg，上限 25 mg，單次推注' },
     { k: 'TNK 級距', x: '<60 kg 15 mg、60–<70 kg 17.5、70–<80 kg 20、80–<90 kg 22.5、≥90 kg 25' },
     { k: 'TNK 0.4 mg/kg', x: '不建議（3: No Benefit）' },
-    { k: '先抽棄', x: '多餘的 alteplase 先抽出丟棄，避免過量' }] },
+    { k: '先抽棄', x: '多餘的 alteplase 先抽出丟棄，避免過量' },
+    { k: '大體重', x: '≥100 kg 皆封頂：alteplase 90 mg（bolus 9、輸注 81 mg）；TNK 25 mg' }] },
   { t: 'EVT：ICA／M1', s: '皆須 NIHSS ≥6', l: [
     { k: '0–6 h，ASPECTS 3–10', x: 'mRS 0–1（COR 1）' },
     { k: '0–6 h，ASPECTS 0–2', x: '<80 歲、無占位、mRS 0–1（2a）' },
@@ -1037,6 +1057,7 @@ const AIS_MAP = {
     { k: 'Bridging', x: '兩者皆符合：立即 IVT，不觀察反應（COR 1）' }] },
   { t: '血壓目標', s: '依治療階段而變', l: [
     { k: 'IVT 前', x: '<185/110（COR 1）' },
+    { k: '降得下來就可給', x: '靜脈降壓後達 <185/110 即可 IVT；降不下來才是禁忌，改直接 EVT' },
     { k: 'IVT 後 24 h', x: '<180/105（COR 1）；輕中度不需壓到 <140' },
     { k: 'EVT 前（未 IVT）', x: '≤185/110（2a）' },
     { k: 'EVT 中與後 24 h', x: '≤180/105（2a）' },
@@ -1061,6 +1082,10 @@ const AIS_MAP = {
     { k: '血壓', x: '>185/110，或需積極靜脈降壓才能達標，皆排除', tw: true },
     { k: '凝血', x: '血小板 <100,000；warfarin 且 INR >1.3', tw: true },
     { k: '血糖', x: '<50 或 >400 mg/dL 排除', tw: true },
+    { k: '口服抗凝', x: '正接受口服抗凝血劑排除；DOAC 未明列，審查可能不給付', tw: true },
+    { k: 'Heparin', x: '48 小時內用 heparin 且 aPTT 過高排除', tw: true },
+    { k: '透析', x: '列為「其他增加出血風險狀況」排除', tw: true },
+    { k: '指引可給、健保不符', x: 'NIHSS >25、需靜脈降壓、醒來中風、warfarin INR 1.3–1.7、DOAC、透析：給藥前先說明', tw: true },
     { k: '取栓', x: '112.11.1 起放寬至 24 小時內（33143B）', tw: true }] }
  ]
 };

@@ -159,7 +159,7 @@ function checkCase(name, p, x) {
   if (x.infusion) eq(a.infusion, x.infusion, name + ' 輸注');
   if (x.tnk) eq(AIS.tenecteplase(p.weight).dose, x.tnk, name + ' TNK');
 }
-eq(AIS_CASES.length, 10, '示範病例 10 例');
+eq(AIS_CASES.length, 11, '示範病例 11 例');
 for (const c of AIS_CASES) {
   const p = { ...CASE_BASE, ...c.p };
   checkCase(c.id, p, c.expect);
@@ -231,6 +231,11 @@ const a14 = D({ tLkw: 3, nihss: '26', aspects: '6', occl: 'ica', sbp: '178', dbp
 eq(a14.scenario.key, 'a', 'a14 Bridging'); eq(AIS.alteplase(110, 0.9).total, 90, 'a14 上限 90 mg');
 ok(A('a14').includes(`Alteplase ${AIS.alteplase(110, 0.9).total} mg`), 'a14 選項劑量與引擎一致');
 ok(a14.nhi.some(x => /NIHSS >25/.test(x)) && a14.nhi.some(x => /靜脈降壓/.test(x)), 'a14 健保排除');
+const a110 = AIS.alteplase(110, 0.9);
+ok(mapText.includes(`alteplase ${a110.total} mg（bolus ${a110.bolus}、輸注 ${a110.infusion} mg）`) && AIS.tenecteplase(110).dose === 25, '心智圖 大體重封頂與引擎一致');
+eq(D({ nihss: '26' }).ivt.status, 'yes', '心智圖 NIHSS >25 非指引禁忌');
+eq(D({ tLkw: 1, anticoag: 'heparin', aptt: '52' }).evt.status, 'yes', '心智圖 取栓不看凝血');
+eq(D({ tLkw: 7, occl: 'm1', penumbra: true }).ivt.status, 'no', '心智圖 能取栓就不走灌流 IVT');
 eq(D({ plt: '99' }).ivt.status, 'no', '心智圖 血小板 <100');
 eq(D({ inr: '1.71' }).ivt.status, 'no', '心智圖 INR >1.7');
 eq(D({ inr: '1.7' }).ivt.status, 'yes', '心智圖 INR 1.7 可');
