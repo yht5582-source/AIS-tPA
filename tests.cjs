@@ -247,5 +247,17 @@ eq(D({ plt: '99' }).ivt.status, 'no', '心智圖 血小板 <100');
 eq(D({ inr: '1.71' }).ivt.status, 'no', '心智圖 INR >1.7');
 eq(D({ inr: '1.7' }).ivt.status, 'yes', '心智圖 INR 1.7 可');
 
+// ---- README 與分頁標籤跟隨內容 ----
+const readme = fs.readFileSync(__dirname + '/README.md', 'utf8');
+const nLeaves = [...AIS_MAP.dx, ...AIS_MAP.tx].reduce((n, b) => n + b.l.length, 0);
+const nAdv = AIS_QUIZ.filter(q => q.level === 'adv').length;
+ok(src.includes(`示範病例 ${AIS_CASES.length}</a>`) && src.includes(`考題 ${AIS_QUIZ.length}</a>`), '分頁標籤數量');
+ok(readme.includes(`示範病例 ${AIS_CASES.length} 例`), 'README 病例數');
+ok(readme.includes(`考題 ${AIS_QUIZ.length} 題`) && readme.includes(`基礎 ${AIS_QUIZ.length - nAdv}、高階 ${nAdv}`), 'README 題數');
+ok(readme.includes(`診斷評估 ${AIS_MAP.dx.length} 分支、治療 ${AIS_MAP.tx.length} 分支、共 ${nLeaves} 個重點`), `README 心智圖（${nLeaves} 個重點）`);
+const ver = (src.match(/<div class="ver">(v[\d.]+)/) || [])[1];
+ok(readme.includes(`**${ver}（`), 'README 更新紀錄含目前版本 ' + ver);
+ok(readme.includes(`執行 ${pass + fail + 1} 項測試`), `README 測試項數（應為 ${pass + fail + 1}）`);
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

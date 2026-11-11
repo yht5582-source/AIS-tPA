@@ -1001,7 +1001,7 @@ const AIS_MAP = {
   { t: '影像', s: '進階影像不可延誤 IVT', l: [
     { k: '非顯影 CT', x: '出血或大範圍明顯低密度 → 不給 IVT' },
     { k: 'ASPECTS', x: '前循環 EVT 分層：0–2、3–5、≥6' },
-    { k: 'CTA／MRA', x: '找 LVO；不必等 creatinine' },
+    { k: 'CTA／MRA', x: '找 LVO；不必等 creatinine，透析病人亦同' },
     { k: '自動化灌流', x: '可挽救半影區，用於延長時窗' },
     { k: 'DWI-FLAIR', x: 'DWI <1/3 MCA 且 FLAIR 無明顯訊號變化' },
     { k: 'PC-ASPECTS', x: '基底動脈 EVT，須 ≥6' }] },
@@ -1023,7 +1023,7 @@ const AIS_MAP = {
     { k: '要等 INR', x: '服 warfarin，>1.7 不給' },
     { k: '要等 aPTT', x: '48 小時內用 heparin，>40 秒不給' },
     { k: 'LMWH', x: '24 小時內治療劑量不給' },
-    { k: '透析', x: '透析中用 heparin 即屬 48 小時內 heparin：須等 aPTT' },
+    { k: '透析', x: '透析中用 heparin 即屬 48 小時內 heparin：須等 aPTT；若服 DOAC，腎功能影響藥物清除' },
     { k: '報告未出', x: '同步啟動取栓團隊，不要等凝血報告才通知' },
     { k: '取栓不看凝血', x: 'EVT 條件不含 INR／aPTT；DOAC 或 heparin 合併 LVO 時優先直接 EVT' }] }
  ],
