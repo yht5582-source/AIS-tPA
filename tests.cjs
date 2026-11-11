@@ -171,11 +171,12 @@ for (const c of AIS_CASES) {
 }
 
 // ---- 考題：結構與答案分布 ----
-eq(AIS_QUIZ.length, 24, '考題 24 題');
+eq(AIS_QUIZ.length, 25, '考題 25 題');
 eq(AIS_QUIZ.filter(q => q.level === 'basic').length, 10, '基礎 10 題');
-eq(AIS_QUIZ.filter(q => q.level === 'adv').length, 14, '高階 14 題');
-eq(new Set(AIS_QUIZ.map(q => q.id)).size, 24, '題號不重複');
-[0, 1, 2, 3].forEach(i => eq(AIS_QUIZ.filter(q => q.ans === i).length, 6, '答案 ' + 'ABCD'[i] + ' 6 題'));
+eq(AIS_QUIZ.filter(q => q.level === 'adv').length, 15, '高階 15 題');
+eq(new Set(AIS_QUIZ.map(q => q.id)).size, 25, '題號不重複');
+const ansN = [0, 1, 2, 3].map(i => AIS_QUIZ.filter(q => q.ans === i).length);
+ok(Math.max(...ansN) - Math.min(...ansN) <= 1, `答案 A–D 分布平均（${ansN.join('/')}）`);
 for (const q of AIS_QUIZ) {
   eq(q.opts.length, 4, q.id + ' 四個選項');
   eq(new Set(q.opts).size, 4, q.id + ' 選項不重複');
@@ -211,6 +212,12 @@ const a6 = D({ tLkw: 3, anticoag: 'warfarin', inr: '1.5', occl: 'none' });
 eq(a6.ivt.cor, '1', 'a6 指引可給'); ok(a6.nhi.some(x => />1\.3/.test(x)), 'a6 健保排除');
 ok(D({ tLkw: 2 }).after.some(x => /<140/.test(x)), 'a9 不壓到 <140');
 ok(D({ tLkw: 30, occl: 'none', nihss: '4' }).after.some(x => /24–72/.test(x)), 'a10 NIHSS 4 延伸 DAPT');
+
+const dia = o => D({ tLkw: 1.5, nihss: '11', occl: 'none', anticoag: 'heparin', nhi: ['otherRisk'], ...o });
+eq(dia({ aptt: '' }).ivt.status, 'pending', 'a15 aPTT 未出須等');
+eq(dia({ aptt: '36' }).ivt.status, 'yes', 'a15 aPTT ≤40 可給');
+eq(dia({ aptt: '41' }).ivt.status, 'no', 'a15 aPTT >40 不給');
+ok(dia({ aptt: '36' }).nhi.some(x => /透析/.test(x)), 'a15 健保透析排除');
 
 // ---- 心智圖：數字與引擎門檻一致 ----
 const mapText = JSON.stringify(AIS_MAP);
