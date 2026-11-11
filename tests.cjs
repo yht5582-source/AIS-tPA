@@ -159,7 +159,7 @@ function checkCase(name, p, x) {
   if (x.infusion) eq(a.infusion, x.infusion, name + ' 輸注');
   if (x.tnk) eq(AIS.tenecteplase(p.weight).dose, x.tnk, name + ' TNK');
 }
-eq(AIS_CASES.length, 6, '示範病例 6 例');
+eq(AIS_CASES.length, 10, '示範病例 10 例');
 for (const c of AIS_CASES) {
   const p = { ...CASE_BASE, ...c.p };
   checkCase(c.id, p, c.expect);
@@ -171,11 +171,11 @@ for (const c of AIS_CASES) {
 }
 
 // ---- 考題：結構與答案分布 ----
-eq(AIS_QUIZ.length, 20, '考題 20 題');
+eq(AIS_QUIZ.length, 24, '考題 24 題');
 eq(AIS_QUIZ.filter(q => q.level === 'basic').length, 10, '基礎 10 題');
-eq(AIS_QUIZ.filter(q => q.level === 'adv').length, 10, '高階 10 題');
-eq(new Set(AIS_QUIZ.map(q => q.id)).size, 20, '題號不重複');
-[0, 1, 2, 3].forEach(i => eq(AIS_QUIZ.filter(q => q.ans === i).length, 5, '答案 ' + 'ABCD'[i] + ' 5 題'));
+eq(AIS_QUIZ.filter(q => q.level === 'adv').length, 14, '高階 14 題');
+eq(new Set(AIS_QUIZ.map(q => q.id)).size, 24, '題號不重複');
+[0, 1, 2, 3].forEach(i => eq(AIS_QUIZ.filter(q => q.ans === i).length, 6, '答案 ' + 'ABCD'[i] + ' 6 題'));
 for (const q of AIS_QUIZ) {
   eq(q.opts.length, 4, q.id + ' 四個選項');
   eq(new Set(q.opts).size, 4, q.id + ' 選項不重複');
@@ -219,6 +219,18 @@ ok(AIS_MAP.tx.find(b => b.t === '台灣健保').l.every(x => x.tw), '健保分�
 ok([...AIS_MAP.dx, ...AIS_MAP.tx].filter(b => b.t !== '台灣健保').every(b => b.l.every(x => !x.tw)), '其餘分支不標台灣');
 AIS.TNK_BANDS.forEach(([, mg]) => ok(mapText.includes(String(mg)), 'TNK 級距 ' + mg));
 for (const k of ['INR >1.7', 'aPTT >40', 'PT >15', '血小板 <100k', 'INR >1.3', '<4 或 >25', '<185/110', '<180/105', '上限 90 mg', '上限 25 mg']) ok(mapText.includes(k), '心智圖含 ' + k);
+// a11–a14：高難度題答案與引擎核對
+const a11 = D({ onsetType: 'wake', tLkw: 10, tRecog: 2, tSleepMid: 6, nihss: '8', occl: 'm2nondom', penumbra: true });
+eq(a11.ivt.cor, '2a', 'a11 灌流路徑 2a'); eq(a11.evt.cor, '3: No Benefit', 'a11 M2 共優勢 EVT 無益');
+eq(D({ onsetType: 'wake', tLkw: 10, tRecog: 2, tSleepMid: 10, nihss: '8', occl: 'm2nondom', penumbra: true }).ivt.status, 'no', 'a11 睡眠中點 >9 小時不符');
+const a12 = D({ anticoag: 'doac', nihss: '14', occl: 'm1' });
+eq(a12.ivt.status, 'consider', 'a12 DOAC IVT 個別評估'); eq(a12.evt.cor, '1', 'a12 EVT COR 1');
+const a13 = D({ tLkw: 1, anticoag: 'heparin', aptt: '52', nihss: '17', aspects: '9', rel: ['stemi3m'] });
+eq(a13.scenario.key, 'c', 'a13 直接 EVT'); eq(a13.ivt.status, 'no', 'a13 aPTT >40');
+const a14 = D({ tLkw: 3, nihss: '26', aspects: '6', occl: 'ica', sbp: '178', dbp: '100', nhi: ['ivBp'] });
+eq(a14.scenario.key, 'a', 'a14 Bridging'); eq(AIS.alteplase(110, 0.9).total, 90, 'a14 上限 90 mg');
+ok(A('a14').includes(`Alteplase ${AIS.alteplase(110, 0.9).total} mg`), 'a14 選項劑量與引擎一致');
+ok(a14.nhi.some(x => /NIHSS >25/.test(x)) && a14.nhi.some(x => /靜脈降壓/.test(x)), 'a14 健保排除');
 eq(D({ plt: '99' }).ivt.status, 'no', '心智圖 血小板 <100');
 eq(D({ inr: '1.71' }).ivt.status, 'no', '心智圖 INR >1.7');
 eq(D({ inr: '1.7' }).ivt.status, 'yes', '心智圖 INR 1.7 可');
