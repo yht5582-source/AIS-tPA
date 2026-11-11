@@ -23,7 +23,7 @@
 ```bash
 node tests.cjs
 ```
-從 `index.html` 的 `/*ENGINE-START*/…/*ENGINE-END*/` 抽出決策引擎，另抽出 `CASES`、`QUIZ`、`MAP` 區塊，執行 411 項測試（情境、IVT/EVT 條件、劑量、NIHSS、健保條件、病例與變化題、考題答案、心智圖數字）。
+從 `index.html` 的 `/*ENGINE-START*/…/*ENGINE-END*/` 抽出決策引擎，另抽出 `CASES`、`QUIZ`、`MAP` 區塊，執行 412 項測試（情境、IVT/EVT 條件、劑量、NIHSS、健保條件、病例與變化題、考題答案、心智圖數字）。
 
 ## 📚 依據
 * Prabhakaran S, et al. 2026 Guideline for the Early Management of Patients With Acute Ischemic Stroke. *Stroke*. 2026. doi:10.1161/STR.0000000000000513

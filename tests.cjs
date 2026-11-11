@@ -252,6 +252,7 @@ const readme = fs.readFileSync(__dirname + '/README.md', 'utf8');
 const nLeaves = [...AIS_MAP.dx, ...AIS_MAP.tx].reduce((n, b) => n + b.l.length, 0);
 const nAdv = AIS_QUIZ.filter(q => q.level === 'adv').length;
 ok(src.includes(`示範病例 ${AIS_CASES.length}</a>`) && src.includes(`考題 ${AIS_QUIZ.length}</a>`), '分頁標籤數量');
+ok(src.includes(`data-f="all">全部 ${AIS_QUIZ.length}<`) && src.includes(`data-f="basic">基礎 ${AIS_QUIZ.length - nAdv}<`) && src.includes(`data-f="adv">高階 ${nAdv}<`), '考題篩選按鈕數量');
 ok(readme.includes(`示範病例 ${AIS_CASES.length} 例`), 'README 病例數');
 ok(readme.includes(`考題 ${AIS_QUIZ.length} 題`) && readme.includes(`基礎 ${AIS_QUIZ.length - nAdv}、高階 ${nAdv}`), 'README 題數');
 ok(readme.includes(`診斷評估 ${AIS_MAP.dx.length} 分支、治療 ${AIS_MAP.tx.length} 分支、共 ${nLeaves} 個重點`), `README 心智圖（${nLeaves} 個重點）`);

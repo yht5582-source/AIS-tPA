@@ -430,9 +430,9 @@ details.sub-d summary{font-size:.9em}
   <section id="view-quiz" class="hidden">
     <div class="quiz-bar">
       <div class="quiz-filter" id="quizFilter">
-        <button type="button" class="tbtn" data-f="all">全部 20</button>
+        <button type="button" class="tbtn" data-f="all">全部 25</button>
         <button type="button" class="tbtn" data-f="basic">基礎 10</button>
-        <button type="button" class="tbtn" data-f="adv">高階 10</button>
+        <button type="button" class="tbtn" data-f="adv">高階 15</button>
       </div>
       <button type="button" class="tbtn" id="quizReset">重新作答</button>
       <span id="quizScore"></span>
@@ -1395,7 +1395,8 @@ function renderQuiz() {
   const list = AIS_QUIZ.filter(q => quiz.filter === 'all' || q.level === quiz.filter);
   const done = list.filter(q => q.id in quiz.picks);
   const right = done.filter(q => quiz.picks[q.id] === q.ans).length;
-  document.querySelectorAll('#quizFilter button').forEach(b => b.classList.toggle('primary', b.dataset.f === quiz.filter));
+  const QF = { all: '全部', basic: '基礎', adv: '高階' };
+  document.querySelectorAll('#quizFilter button').forEach(b => { if (QF[b.dataset.f]) b.textContent = `${QF[b.dataset.f]} ${AIS_QUIZ.filter(q => b.dataset.f === 'all' || q.level === b.dataset.f).length}`; b.classList.toggle('primary', b.dataset.f === quiz.filter); });
   $('quizScore').textContent = `已答 ${done.length} / ${list.length}，答對 ${right} 題` + (done.length === list.length && list.length ? `（${Math.round(right / list.length * 100)}%）` : '');
   $('quizList').innerHTML = list.map((q, n) => {
     const pick = quiz.picks[q.id], answered = pick !== undefined;
